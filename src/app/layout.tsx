@@ -1,0 +1,24 @@
+import type { Metadata, Viewport } from "next";
+import { AppShell } from "@/components/app-shell";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Havelská – správa apartmánu",
+  description: "Lokální provozní aplikace pro správu pobytů a zásob.",
+};
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#152c26" };
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const productionLocked = Boolean(process.env.VERCEL) && process.env.ENABLE_PRODUCTION_APP !== "true";
+  return (
+    <html lang="cs">
+      <body>
+        {productionLocked ? (
+          <main className="locked"><div><span className="brand-mark">H</span><h1>Produkční provoz je zatím uzamčený</h1><p>Aplikaci nyní ladíme pouze lokálně. Pro odemčení je nutné dokončit přihlášení a trvalou databázi.</p></div></main>
+        ) : <AppShell>{children}</AppShell>}
+      </body>
+    </html>
+  );
+}
+
