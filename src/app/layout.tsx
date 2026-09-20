@@ -10,15 +10,14 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#152c26" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const productionLocked = Boolean(process.env.VERCEL) && process.env.ENABLE_PRODUCTION_APP !== "true";
+  const productionLocked = Boolean(process.env.VERCEL) && (process.env.ENABLE_PRODUCTION_APP !== "true" || !process.env.DATABASE_URL);
   return (
     <html lang="cs">
       <body>
         {productionLocked ? (
-          <main className="locked"><div><span className="brand-mark">H</span><h1>Produkční provoz je zatím uzamčený</h1><p>Aplikaci nyní ladíme pouze lokálně. Pro odemčení je nutné dokončit přihlášení a trvalou databázi.</p></div></main>
+          <main className="locked"><div><span className="brand-mark">H</span><h1>Produkční provoz je zatím uzamčený</h1><p>Pro odemčení je nutné nastavit heslo, povolit produkční provoz a připojit trvalou databázi.</p></div></main>
         ) : <AppShell>{children}</AppShell>}
       </body>
     </html>
   );
 }
-

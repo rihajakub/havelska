@@ -6,11 +6,13 @@
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start",
-    "smoke": "node scripts/smoke.mjs",
+    "smoke": "npm run build && node scripts/smoke.mjs",
+    "smoke:auth": "VERCEL=1 ENABLE_PRODUCTION_APP=true APP_PASSWORD=smoke-only-password npm run build && VERCEL=1 ENABLE_PRODUCTION_APP=true APP_PASSWORD=smoke-only-password node scripts/smoke-auth.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test src/**/*.test.ts"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "next": "16.3.5",
     "react": "19.3.0",
     "react-dom": "19.3.0"
@@ -20,6 +22,6 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "tsx": "^4.20.0",
-    "typescript": "^6.0.0"
+    "typescript": "^5.9.3"
   }
 }

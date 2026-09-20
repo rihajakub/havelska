@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { addStay, updateInventory } from "@/data/repository";
+import { addStay, replaceAirbnbStays, updateInventory } from "@/data/repository";
+import { parseAirbnbCalendar } from "@/data/airbnb";
 import { STOCK_STATES } from "@/domain/inventory";
 import type { StockState } from "@/domain/types";
 
@@ -49,4 +50,14 @@ export async function createStay(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/pobyty");
   redirect("/pobyty");
+}
+
+export async function syncAirbnbCalendar() {
+  const url = process.env.AIRBNB_ICAL_URL;
+  if (!url) throw new Error("AIRBNB_ICAL_URL není nastavené.");
+  let response: Response;
+  try { response = await fetch(url, { cache: "no-store" }); } catch { throw new Error("Airbnb iCal se nepodařilo načíst."); }
+  if (!response.ok) throw new Error("Airbnb iCal vrátil neplatnou odpověď.");
+  await replaceAirbnbStays(parseAirbnbCalendar(await response.text()));
+  revalidatePath("/"); revalidatePath("/pobyty");
 }

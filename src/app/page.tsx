@@ -4,6 +4,8 @@ import { readiness } from "@/domain/inventory";
 import { ArrowIcon, CalendarIcon, PlusIcon, VanIcon } from "@/components/icons";
 import { StatusCard } from "@/components/status-card";
 
+export const dynamic = "force-dynamic";
+
 const date = new Intl.DateTimeFormat("cs-CZ", { weekday: "short", day: "numeric", month: "short" });
 
 export default async function Dashboard() {
@@ -35,7 +37,6 @@ export default async function Dashboard() {
       </div>
     </section>
 
-    <section className="info-strip"><strong>Bezpečné lokální spuštění</strong><span>Produkční Vercel je v kódu uzamčený, dokud nepřidáme Google přihlášení a trvalou databázi.</span></section>
+    <section className="info-strip"><strong>Bezpečný provoz</strong><span>Produkce je chráněná heslem; data jsou při nastavení DATABASE_URL uložená v PostgreSQL.</span></section>
   </>;
 }
-

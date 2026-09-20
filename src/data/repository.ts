@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { createSeedData } from "./seed";
+import { readPostgresData, writePostgresData } from "./postgres";
 import type { AppData, InventoryItem, Stay, StockState } from "@/domain/types";
 import { stockTotal } from "@/domain/inventory";
 
@@ -10,6 +11,7 @@ const dataDir = path.join(process.cwd(), ".data");
 const dataFile = path.join(dataDir, "local.json");
 
 async function readData(): Promise<AppData> {
+  if (process.env.DATABASE_URL) return readPostgresData(process.env.DATABASE_URL);
   try {
     return JSON.parse(await fs.readFile(dataFile, "utf8")) as AppData;
   } catch (error) {
@@ -21,6 +23,7 @@ async function readData(): Promise<AppData> {
 }
 
 async function writeData(data: AppData) {
+  if (process.env.DATABASE_URL) { await writePostgresData(process.env.DATABASE_URL, data); return; }
   await fs.mkdir(dataDir, { recursive: true });
   const temporary = `${dataFile}.${process.pid}.${randomUUID()}.tmp`;
   try {
@@ -51,5 +54,11 @@ export async function addStay(stay: Stay) {
   const data = await readData();
   data.stays.push(stay);
   data.stays.sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+  await writeData(data);
+}
+
+export async function replaceAirbnbStays(stays: Stay[]) {
+  const data = await readData();
+  data.stays = [...data.stays.filter((stay) => stay.source !== "airbnb"), ...stays].sort((a, b) => a.checkIn.localeCompare(b.checkIn));
   await writeData(data);
 }

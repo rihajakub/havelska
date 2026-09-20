@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 
-const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "--hostname", "127.0.0.1", "--port", "3100"], {
+const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3100"], {
   cwd: process.cwd(),
   env: { ...process.env, LOCAL_DEV_BYPASS_AUTH: "true" },
   stdio: ["ignore", "pipe", "pipe"],
@@ -26,10 +26,19 @@ const expectations = [
   ["/cesta?turns=3", "Co vzít do bytu"],
 ];
 
+async function fetchWithRetry(url) {
+  let lastError;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    try { return await fetch(url); } catch (error) { lastError = error; }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw lastError;
+}
+
 try {
   await ready;
   for (const [path, expected] of expectations) {
-    const response = await fetch(`http://127.0.0.1:3100${path}`);
+    const response = await fetchWithRetry(`http://127.0.0.1:3100${path}`);
     const html = await response.text();
     if (!response.ok || !html.includes(expected)) throw new Error(`${path} neobsahuje očekávaný text: ${expected}`);
     console.log(`OK ${path}`);

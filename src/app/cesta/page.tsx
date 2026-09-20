@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getAppData } from "@/data/repository";
 import { deliveryForTurns } from "@/domain/inventory";
 
+export const dynamic = "force-dynamic";
+
 export default async function TripPage({ searchParams }: { searchParams: Promise<{ turns?: string }> }) {
   const query = await searchParams;
   const target = query.turns === "3" ? 3 : 2;
@@ -15,4 +17,3 @@ export default async function TripPage({ searchParams }: { searchParams: Promise
     {list.length === 0 ? <section className="empty compact"><h2>Nic nechybí</h2><p>Podle potvrzených stavů je čistá rezerva v bytě dostatečná.</p></section> : <div className="trip-list">{list.map(({ item, bring, buy }) => <article key={item.id} className="trip-item"><div><strong>{item.name}</strong><small>Cíl: {(item.perTurn ?? 0) * target} {item.unit} v čisté rezervě</small></div><div className="trip-counts">{bring > 0 && <span className="bring">Přivézt {bring}</span>}{buy > 0 && <span className="buy">Dokoupit {buy}</span>}</div></article>)}</div>}
   </>;
 }
-

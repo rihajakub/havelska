@@ -2,6 +2,8 @@ import { getAppData } from "@/data/repository";
 import { cleanTurns, readiness, STOCK_LABELS, STOCK_STATES, stockTotal } from "@/domain/inventory";
 import { saveInventory } from "../actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function InventoryPage() {
   const data = await getAppData();
   const state = readiness(data.inventory);
@@ -36,4 +38,3 @@ export default async function InventoryPage() {
     </div>
   </>;
 }
-
