@@ -90,7 +90,7 @@ export async function submitCheckInForm(formData: FormData) {
   const guests = Array.from({ length: count }, (_, index): CheckInGuest => ({
     firstName: guestField(formData, index, "firstName"), lastName: guestField(formData, index, "lastName"),
     birthDate: guestField(formData, index, "birthDate"), nationality: guestField(formData, index, "nationality"),
-    travelDocumentNumber: guestField(formData, index, "travelDocumentNumber"), visaOrResidence: guestField(formData, index, "visaOrResidence", false),
+    travelDocumentNumber: guestField(formData, index, "travelDocumentNumber"), visaOrResidence: guestField(formData, index, "visaOrResidence"),
     foreignAddress: guestField(formData, index, "foreignAddress"), purposeOfStay: guestField(formData, index, "purposeOfStay"),
   }));
   await submitCheckInRegistration(token, guests);
