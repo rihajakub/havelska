@@ -54,6 +54,8 @@ export interface CheckInRegistration {
   createdAt: string;
   expiresAt: string;
   submittedAt?: string;
+  submittedCheckIn?: string;
+  submittedCheckOut?: string;
   reportedAt?: string;
 }
 

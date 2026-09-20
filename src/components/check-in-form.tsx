@@ -13,12 +13,18 @@ type GuestInput = ReturnType<typeof emptyGuest>;
 
 export function CheckInForm({ token, checkIn, checkOut }: { token: string; checkIn: string; checkOut: string }) {
   const [guests, setGuests] = useState<GuestInput[]>([emptyGuest(), emptyGuest()]);
+  const [arrivalDate, setArrivalDate] = useState(checkIn);
+  const [departureDate, setDepartureDate] = useState(checkOut);
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [errorMessage, setErrorMessage] = useState("");
-  const setValue = (index: number, key: keyof GuestInput, value: string) => { setGuests((items) => items.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item)); setErrors((items) => { const next = new Set(items); next.delete(`${index}-${key}`); return next; }); };
+  const clearError = (key: string) => setErrors((items) => { const next = new Set(items); next.delete(key); return next; });
+  const setValue = (index: number, key: keyof GuestInput, value: string) => { setGuests((items) => items.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item)); clearError(`${index}-${key}`); };
   const invalid = (index: number, key: keyof GuestInput) => errors.has(`${index}-${key}`);
   const validate = (event: FormEvent<HTMLFormElement>) => {
     const missing = new Set<string>(); const names: string[] = [];
+    if (!arrivalDate) { missing.add("stay-arrival"); names.push("Arrival date"); }
+    if (!departureDate) { missing.add("stay-departure"); names.push("Departure date"); }
+    if (arrivalDate && departureDate && departureDate <= arrivalDate) { missing.add("stay-arrival"); missing.add("stay-departure"); names.push("Departure date must be after arrival date"); }
     guests.forEach((guest, index) => (Object.keys(labels) as Array<keyof typeof labels>).forEach((key) => {
       if ((key === "purposeOther" && guest.purposeOfStay !== "Other") || (key === "purposeOfStay" && !guest.purposeOfStay)) return;
       if (!guest[key].trim()) { missing.add(`${index}-${key}`); names.push(`Guest ${index + 1}: ${labels[key]}`); }
@@ -30,6 +36,7 @@ export function CheckInForm({ token, checkIn, checkOut }: { token: string; check
     <input type="hidden" name="token" value={token}/><input type="hidden" name="guestCount" value={guests.length}/>
     <p className="notice">Stay: <strong>{checkIn} – {checkOut}</strong>. Please enter the details exactly as they appear on the travel document. We do not request photographs or copies of documents.</p>
     {errorMessage && <p className="form-error" role="alert">{errorMessage}</p>}
+    <div className="field-row"><label><span>Arrival date</span><input className={errors.has("stay-arrival") ? "field-error" : undefined} aria-invalid={errors.has("stay-arrival")} type="date" name="submittedCheckIn" value={arrivalDate} onChange={(event) => { setArrivalDate(event.target.value); clearError("stay-arrival"); }}/></label><label><span>Departure date</span><input className={errors.has("stay-departure") ? "field-error" : undefined} aria-invalid={errors.has("stay-departure")} type="date" name="submittedCheckOut" value={departureDate} onChange={(event) => { setDepartureDate(event.target.value); clearError("stay-departure"); }}/></label></div>
     {guests.map((guest, index) => <fieldset className="guest-fields" key={index}><legend>Guest {index + 1}</legend>
       <div className="field-row"><label><span>First name</span><input className={fieldClass(index, "firstName")} aria-invalid={invalid(index, "firstName")} name={`guest-${index}-firstName`} value={guest.firstName} onChange={(event) => setValue(index, "firstName", event.target.value)}/></label><label><span>Last name</span><input className={fieldClass(index, "lastName")} aria-invalid={invalid(index, "lastName")} name={`guest-${index}-lastName`} value={guest.lastName} onChange={(event) => setValue(index, "lastName", event.target.value)}/></label></div>
       <div className="field-row"><label><span>Date of birth</span><input className={fieldClass(index, "birthDate")} aria-invalid={invalid(index, "birthDate")} type="date" name={`guest-${index}-birthDate`} value={guest.birthDate} onChange={(event) => setValue(index, "birthDate", event.target.value)}/></label><label><span>Nationality</span><select className={fieldClass(index, "nationality")} aria-invalid={invalid(index, "nationality")} name={`guest-${index}-nationality`} value={guest.nationality} onChange={(event) => setValue(index, "nationality", event.target.value)}><option value="">Select nationality</option>{countries.map((country) => <option key={country} value={country}>{country}</option>)}</select></label></div>

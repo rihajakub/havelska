@@ -105,11 +105,14 @@ export async function getCheckInRegistrationByToken(token: string) {
   return stay ? { registration, stay } : undefined;
 }
 
-export async function submitCheckInRegistration(token: string, guests: CheckInGuest[]) {
+export async function submitCheckInRegistration(token: string, guests: CheckInGuest[], submittedCheckIn: string, submittedCheckOut: string) {
   const data = await readData();
   const registration = (data.checkInRegistrations ?? []).find((item) => item.tokenHash === tokenHash(token));
   if (!registration || new Date(registration.expiresAt) < new Date()) throw new Error("This check-in link is no longer valid.");
+  if (!submittedCheckIn || !submittedCheckOut || submittedCheckOut <= submittedCheckIn) throw new Error("Departure date must be after arrival date.");
   registration.encryptedGuests = encryptCheckInData(JSON.stringify(guests));
+  registration.submittedCheckIn = submittedCheckIn;
+  registration.submittedCheckOut = submittedCheckOut;
   registration.submittedAt = new Date().toISOString();
   await writeData(data);
 }

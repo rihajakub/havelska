@@ -85,6 +85,8 @@ const guestField = (formData: FormData, index: number, field: keyof CheckInGuest
 
 export async function submitCheckInForm(formData: FormData) {
   const token = String(formData.get("token") ?? "");
+  const submittedCheckIn = String(formData.get("submittedCheckIn") ?? "");
+  const submittedCheckOut = String(formData.get("submittedCheckOut") ?? "");
   const count = Number(formData.get("guestCount") ?? 0);
   if (!token || !Number.isInteger(count) || count < 1 || count > 4) throw new Error("The number of guests is invalid.");
   const guests = Array.from({ length: count }, (_, index): CheckInGuest => ({
@@ -93,5 +95,5 @@ export async function submitCheckInForm(formData: FormData) {
     travelDocumentNumber: guestField(formData, index, "travelDocumentNumber"), visaOrResidence: guestField(formData, index, "visaOrResidence"),
     foreignAddress: guestField(formData, index, "foreignAddress"), purposeOfStay: guestField(formData, index, "purposeOfStay"),
   }));
-  await submitCheckInRegistration(token, guests);
+  await submitCheckInRegistration(token, guests, submittedCheckIn, submittedCheckOut);
 }
