@@ -1,8 +1,13 @@
 import { CheckInForm } from "@/components/check-in-form";
 import { getCheckInRegistrationByToken, getCheckInTemplate } from "@/data/repository";
 import Image from "next/image";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: { absolute: "Havelská Apartment" },
+  description: "Online check-in",
+};
 
 export default async function PublicCheckInPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
