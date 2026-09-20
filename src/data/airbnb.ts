@@ -11,5 +11,5 @@ export function parseAirbnbCalendar(calendar: string): Stay[] {
     else if (line === "END:VEVENT") { if (current) events.push(current); current = undefined; }
     else if (current) { const [field, value] = line.split(":", 2); if (field?.startsWith("UID")) current.uid = value; if (field?.startsWith("DTSTART")) current.start = value; if (field?.startsWith("DTEND")) current.end = value; if (field?.startsWith("STATUS")) current.status = value; }
   }
-  return events.flatMap((event) => { const checkIn = eventDate(event.start); const checkOut = eventDate(event.end); if (!event.uid || !checkIn || !checkOut || checkOut <= checkIn || event.status === "CANCELLED") return []; return [{ id: `airbnb:${event.uid}`, checkIn, checkOut, guests: 4, preparationGuests: 4, status: "planned", note: "Výchozí příprava pro 4 – ověřit v Airbnb", source: "airbnb" }]; });
+  return events.flatMap((event) => { const checkIn = eventDate(event.start); const checkOut = eventDate(event.end); if (!event.uid || !checkIn || !checkOut || checkOut <= checkIn || event.status === "CANCELLED") return []; return [{ id: `airbnb:${event.uid}`, checkIn, checkOut, guests: 4, preparationGuests: 4, guestCountManuallySet: false, status: "planned", note: "Výchozí příprava pro 4 – ověřit v Airbnb", source: "airbnb" }]; });
 }

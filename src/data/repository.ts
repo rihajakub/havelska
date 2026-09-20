@@ -60,7 +60,24 @@ export async function addStay(stay: Stay) {
 
 export async function replaceAirbnbStays(stays: Stay[]) {
   const data = await readData();
-  data.stays = [...data.stays.filter((stay) => stay.source !== "airbnb"), ...stays].sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+  const currentById = new Map(data.stays.filter((stay) => stay.source === "airbnb").map((stay) => [stay.id, stay]));
+  const merged = stays.map((stay) => {
+    const current = currentById.get(stay.id);
+    return current?.guestCountManuallySet ? { ...stay, guests: current.guests, preparationGuests: current.preparationGuests, guestCountManuallySet: true, note: current.note } : stay;
+  });
+  data.stays = [...data.stays.filter((stay) => stay.source !== "airbnb"), ...merged].sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+  await writeData(data);
+}
+
+export async function updateStayGuests(id: string, guests: number) {
+  if (!Number.isInteger(guests) || guests < 1 || guests > 4) throw new Error("Počet hostů musí být 1 až 4.");
+  const data = await readData();
+  const stay = data.stays.find((candidate) => candidate.id === id);
+  if (!stay) throw new Error("Pobyt nebyl nalezen.");
+  stay.guests = guests;
+  stay.preparationGuests = guests >= 3 ? 4 : 2;
+  stay.guestCountManuallySet = true;
+  if (stay.note === "Výchozí příprava pro 4 – ověřit v Airbnb") stay.note = "";
   await writeData(data);
 }
 

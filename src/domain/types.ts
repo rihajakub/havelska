@@ -28,6 +28,7 @@ export interface Stay {
   checkOut: string;
   guests: number;
   preparationGuests: 2 | 4;
+  guestCountManuallySet?: boolean;
   status: "planned" | "active" | "completed" | "cancelled";
   note: string;
   source: "manual" | "airbnb";

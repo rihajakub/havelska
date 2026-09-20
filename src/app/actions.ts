@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { addStay, createCheckInRegistration, markCheckInReported, replaceAirbnbStays, submitCheckInRegistration, updateInventory } from "@/data/repository";
+import { addStay, createCheckInRegistration, markCheckInReported, replaceAirbnbStays, submitCheckInRegistration, updateInventory, updateStayGuests } from "@/data/repository";
 import { parseAirbnbCalendar } from "@/data/airbnb";
 import { STOCK_STATES } from "@/domain/inventory";
 import type { CheckInGuest, StockState } from "@/domain/types";
@@ -65,6 +65,11 @@ export async function syncAirbnbCalendar() {
 export async function createCheckInLink(formData: FormData) {
   await createCheckInRegistration(String(formData.get("stayId") ?? ""));
   revalidatePath("/cizinecka-policie");
+}
+
+export async function updateGuests(formData: FormData) {
+  await updateStayGuests(String(formData.get("stayId") ?? ""), asCount(formData.get("guests")));
+  revalidatePath("/"); revalidatePath("/pobyty"); revalidatePath("/cizinecka-policie");
 }
 
 export async function markReported(formData: FormData) {
