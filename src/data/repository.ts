@@ -4,10 +4,11 @@ import path from "node:path";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { createSeedData } from "./seed";
 import { readPostgresData, writePostgresData } from "./postgres";
-import type { AppData, CheckInGuest, CheckInRegistration, CheckInTemplate, CleaningSupply, InventoryItem, Stay, StockState, SupplyTask } from "@/domain/types";
+import type { AppData, CheckInGuest, CheckInRegistration, CheckInTemplate, CleaningSupply, CommunicationTemplate, InventoryItem, MessageTemplateId, Stay, StayChecklistItem, StockState, SupplyTask, TaxSettlement } from "@/domain/types";
 import { stockTotal } from "@/domain/inventory";
 import { decryptCheckInData, encryptCheckInData } from "./check-in-crypto";
 import { defaultCheckInTemplate } from "./check-in-template";
+import { defaultCommunicationTemplates } from "./communication-templates";
 
 const dataDir = path.join(process.cwd(), ".data");
 const dataFile = path.join(dataDir, "local.json");
@@ -141,6 +142,50 @@ export async function updateStayGuests(id: string, guests: number) {
   stay.guestCountManuallySet = true;
   if (stay.note === "Výchozí příprava pro 4 – ověřit v Airbnb") stay.note = "";
   await writeData(data);
+}
+
+export async function updateStayOperation(id: string, values: Pick<Stay, "arrivalTime" | "keyMethod" | "keyStatus">) {
+  const data = await readData(); const stay = data.stays.find((item) => item.id === id);
+  if (!stay) throw new Error("Pobyt nebyl nalezen.");
+  Object.assign(stay, values); await writeData(data);
+}
+
+export async function toggleStayChecklist(id: string, item: StayChecklistItem, completed: boolean) {
+  const data = await readData(); const stay = data.stays.find((candidate) => candidate.id === id);
+  if (!stay) throw new Error("Pobyt nebyl nalezen.");
+  stay.checklist = { ...stay.checklist, [item]: completed }; await writeData(data);
+}
+
+export async function markStayMessageSent(id: string, templateId: MessageTemplateId) {
+  const data = await readData(); const stay = data.stays.find((candidate) => candidate.id === id);
+  if (!stay) throw new Error("Pobyt nebyl nalezen.");
+  stay.messageLog = { ...stay.messageLog, [templateId]: new Date().toISOString() }; await writeData(data);
+}
+
+export async function getCommunicationTemplates() {
+  const data = await readData();
+  const saved = data.communicationTemplates ?? [];
+  return defaultCommunicationTemplates.map((template) => saved.find((item) => item.id === template.id) ?? template);
+}
+
+export async function saveCommunicationTemplates(templates: CommunicationTemplate[]) {
+  const data = await readData(); data.communicationTemplates = templates; await writeData(data);
+}
+
+export async function updateTaxSettlement(month: string, action: "reported" | "paid", note?: string) {
+  const data = await readData(); const current = data.taxSettlements ?? [];
+  const settlement = current.find((item) => item.month === month) ?? { month } satisfies TaxSettlement;
+  settlement[action === "reported" ? "reportedAt" : "paidAt"] = new Date().toISOString();
+  if (note) settlement.note = note;
+  data.taxSettlements = [...current.filter((item) => item.month !== month), settlement].sort((a, b) => b.month.localeCompare(a.month));
+  await writeData(data);
+}
+
+export async function updateStayTaxExemption(id: string, exemptGuests: number) {
+  const data = await readData(); const stay = data.stays.find((item) => item.id === id);
+  if (!stay) throw new Error("Pobyt nebyl nalezen.");
+  if (!Number.isInteger(exemptGuests) || exemptGuests < 0 || exemptGuests > stay.guests) throw new Error("Počet osvobozených hostů není platný.");
+  stay.taxExemptGuests = exemptGuests; await writeData(data);
 }
 
 const tokenHash = (token: string) => createHash("sha256").update(token).digest("hex");

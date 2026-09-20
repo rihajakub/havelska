@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { addCleaningSupply, addStay, addSupplyTask, adjustCleaningSupply, completeSupplyTask, createCheckInRegistration, markCheckInReported, replaceAirbnbStays, submitCheckInRegistration, updateCheckInTemplate, updateLinenInventory, updateStayGuests } from "@/data/repository";
+import { addCleaningSupply, addStay, addSupplyTask, adjustCleaningSupply, completeSupplyTask, createCheckInRegistration, markCheckInReported, markStayMessageSent, replaceAirbnbStays, saveCommunicationTemplates, submitCheckInRegistration, toggleStayChecklist, updateCheckInTemplate, updateLinenInventory, updateStayGuests, updateStayOperation, updateStayTaxExemption, updateTaxSettlement } from "@/data/repository";
 import { parseAirbnbCalendar } from "@/data/airbnb";
 import { STOCK_STATES } from "@/domain/inventory";
-import type { CheckInGuest, CheckInTemplate, StockState } from "@/domain/types";
+import type { CheckInGuest, CheckInTemplate, CommunicationTemplate, MessageTemplateId, StayChecklistItem } from "@/domain/types";
 
 function assertDashboardWriteAllowed() {
   if (process.env.VERCEL && process.env.ENABLE_PRODUCTION_APP !== "true") {
@@ -93,6 +93,44 @@ export async function createCheckInLink(formData: FormData) {
 export async function updateGuests(formData: FormData) {
   await updateStayGuests(String(formData.get("stayId") ?? ""), asCount(formData.get("guests")));
   revalidatePath("/"); revalidatePath("/pobyty"); revalidatePath("/cizinecka-policie");
+}
+
+export async function saveStayOperation(formData: FormData) {
+  assertDashboardWriteAllowed();
+  const keyMethod = String(formData.get("keyMethod") ?? ""); const keyStatus = String(formData.get("keyStatus") ?? "");
+  if (!["personal", "lockbox", "smart-lock"].includes(keyMethod) || !["not-arranged", "instructions-sent", "handed-over"].includes(keyStatus)) throw new Error("Neplatný stav předání klíčů.");
+  await updateStayOperation(String(formData.get("stayId") ?? ""), { arrivalTime: String(formData.get("arrivalTime") ?? ""), keyMethod: keyMethod as "personal" | "lockbox" | "smart-lock", keyStatus: keyStatus as "not-arranged" | "instructions-sent" | "handed-over" });
+  revalidatePath("/"); revalidatePath("/pobyty"); revalidatePath("/pobyty/[id]", "page");
+}
+
+export async function setChecklistItem(formData: FormData) {
+  assertDashboardWriteAllowed();
+  await toggleStayChecklist(String(formData.get("stayId") ?? ""), String(formData.get("item") ?? "") as StayChecklistItem, String(formData.get("completed") ?? "") === "true");
+  revalidatePath("/"); revalidatePath("/pobyty/[id]", "page");
+}
+
+export async function logMessageSent(formData: FormData) {
+  assertDashboardWriteAllowed();
+  await markStayMessageSent(String(formData.get("stayId") ?? ""), String(formData.get("templateId") ?? "") as MessageTemplateId);
+  revalidatePath("/pobyty/[id]", "page");
+}
+
+export async function saveMessageTemplates(formData: FormData) {
+  assertDashboardWriteAllowed();
+  const ids: MessageTemplateId[] = ["booking", "checkin", "arrival", "departure", "review"];
+  const templates = ids.map((id) => ({ id, name: String(formData.get(`${id}-name`) ?? "").trim(), body: String(formData.get(`${id}-body`) ?? "").trim() })) as CommunicationTemplate[];
+  if (templates.some((item) => !item.name || !item.body)) throw new Error("Každá šablona potřebuje název i text.");
+  await saveCommunicationTemplates(templates); revalidatePath("/komunikace"); revalidatePath("/pobyty/[id]", "page");
+}
+
+export async function saveTaxExemption(formData: FormData) {
+  assertDashboardWriteAllowed(); await updateStayTaxExemption(String(formData.get("stayId") ?? ""), asCount(formData.get("exemptGuests"))); revalidatePath("/poplatky");
+}
+
+export async function markTaxSettlement(formData: FormData) {
+  assertDashboardWriteAllowed(); const action = String(formData.get("action") ?? "");
+  if (action !== "reported" && action !== "paid") throw new Error("Neplatná akce.");
+  await updateTaxSettlement(String(formData.get("month") ?? ""), action, String(formData.get("note") ?? "").trim()); revalidatePath("/poplatky");
 }
 
 export async function saveCheckInTemplate(formData: FormData) {

@@ -1,0 +1,14 @@
+import { markTaxSettlement, saveTaxExemption } from "@/app/actions";
+import { getAppData } from "@/data/repository";
+
+export const dynamic = "force-dynamic";
+const MONTHLY_RATE = 50;
+const date = new Intl.DateTimeFormat("cs-CZ", { day: "numeric", month: "numeric" });
+
+export default async function LocalTaxPage() {
+  const data = await getAppData(); const settlements = new Map((data.taxSettlements ?? []).map((item) => [item.month, item]));
+  const groups = new Map<string, typeof data.stays>();
+  data.stays.filter((stay) => stay.status !== "cancelled").forEach((stay) => { const key = stay.checkOut.slice(0, 7); groups.set(key, [...(groups.get(key) ?? []), stay]); });
+  const months = [...groups.entries()].sort(([a], [b]) => b.localeCompare(a));
+  return <><section className="page-heading"><span className="eyebrow">Městská administrativa</span><h1>Poplatek z pobytu</h1><p>Pracovní výpočet pro Prahu: 50 Kč za osobu a noc, bez dne příjezdu. Osvobození vždy ručně ověř a potvrď.</p></section><div className="tax-list">{months.map(([month, stays]) => { const settlement = settlements.get(month); const total = stays.reduce((sum, stay) => { const nights = Math.max(0, Math.round((new Date(`${stay.checkOut}T12:00:00`).getTime() - new Date(`${stay.checkIn}T12:00:00`).getTime()) / 86_400_000)); return sum + Math.max(0, stay.guests - (stay.taxExemptGuests ?? 0)) * nights * MONTHLY_RATE; }, 0); return <section className="tax-card" key={month}><div className="tax-card-heading"><div><span className="eyebrow">{month}</span><h2>{total.toLocaleString("cs-CZ")} Kč</h2><p>{stays.length} {stays.length === 1 ? "pobyt" : "pobytů"} · splatnost a ohlašovací režim ověř u Prahy 1.</p></div><div className="tax-status"><span className={settlement?.reportedAt ? "done" : ""}>Hlášení {settlement?.reportedAt ? "✓" : "—"}</span><span className={settlement?.paidAt ? "done" : ""}>Platba {settlement?.paidAt ? "✓" : "—"}</span></div></div><div className="tax-stays">{stays.map((stay) => <form action={saveTaxExemption} key={stay.id}><input type="hidden" name="stayId" value={stay.id}/><span>{date.format(new Date(`${stay.checkIn}T12:00:00`))} – {date.format(new Date(`${stay.checkOut}T12:00:00`))} · {stay.guests} hosté</span><label>Osvobozeno<input name="exemptGuests" type="number" min="0" max={stay.guests} defaultValue={stay.taxExemptGuests ?? 0}/></label><button className="button secondary" type="submit">Uložit</button></form>)}</div><div className="inline-actions"><form action={markTaxSettlement}><input type="hidden" name="month" value={month}/><input type="hidden" name="action" value="reported"/><button className="button secondary" type="submit">Označit ohlášení</button></form><form action={markTaxSettlement}><input type="hidden" name="month" value={month}/><input type="hidden" name="action" value="paid"/><button className="button" type="submit">Označit platbu</button></form></div></section>; })}</div></>;
+}

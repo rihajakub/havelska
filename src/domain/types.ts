@@ -32,6 +32,28 @@ export interface Stay {
   status: "planned" | "active" | "completed" | "cancelled";
   note: string;
   source: "manual" | "airbnb";
+  arrivalTime?: string;
+  keyMethod?: "personal" | "lockbox" | "smart-lock";
+  keyStatus?: "not-arranged" | "instructions-sent" | "handed-over";
+  checklist?: Partial<Record<StayChecklistItem, boolean>>;
+  messageLog?: Partial<Record<MessageTemplateId, string>>;
+  taxExemptGuests?: number;
+}
+
+export type StayChecklistItem = "cleaned" | "linen" | "supplies" | "arrival-confirmed" | "keys-ready" | "departure-check" | "laundry-started";
+export type MessageTemplateId = "booking" | "checkin" | "arrival" | "departure" | "review";
+
+export interface CommunicationTemplate {
+  id: MessageTemplateId;
+  name: string;
+  body: string;
+}
+
+export interface TaxSettlement {
+  month: string;
+  reportedAt?: string;
+  paidAt?: string;
+  note?: string;
 }
 
 export interface CheckInGuest {
@@ -110,5 +132,7 @@ export interface AppData {
   checkInTemplate?: CheckInTemplate;
   cleaningSupplies?: CleaningSupply[];
   supplyTasks?: SupplyTask[];
+  communicationTemplates?: CommunicationTemplate[];
+  taxSettlements?: TaxSettlement[];
   updatedAt: string;
 }
