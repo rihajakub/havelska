@@ -24,7 +24,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <nav className="topbar-nav" aria-label="Hlavní navigace">
           {links.map(({ href, label, Icon }) => <Link className={pathname === href ? "active" : ""} href={href} key={href}><Icon/><span>{label}</span></Link>)}
         </nav>
-        <span className="dev-chip">Lokální režim</span>
+        <span className="dev-chip">Provoz</span>
       </header>
       <main className="page">{children}</main>
       <nav className="bottom-nav" aria-label="Hlavní navigace">
