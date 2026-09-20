@@ -1,42 +1,49 @@
 import Link from "next/link";
+import { ArrowIcon, CalendarIcon } from "@/components/icons";
 import { getAppData } from "@/data/repository";
-import { readiness } from "@/domain/inventory";
-import { ArrowIcon, CalendarIcon, PlusIcon, VanIcon } from "@/components/icons";
-import { StatusCard } from "@/components/status-card";
+import type { Stay } from "@/domain/types";
 
 export const dynamic = "force-dynamic";
 
-const date = new Intl.DateTimeFormat("cs-CZ", { weekday: "short", day: "numeric", month: "short" });
+const DAY_MS = 86_400_000;
+const shortDate = new Intl.DateTimeFormat("cs-CZ", { day: "numeric", month: "short" });
+const weekday = new Intl.DateTimeFormat("cs-CZ", { weekday: "short" });
+function fromIso(value: string) { return new Date(`${value}T12:00:00`); }
+function iso(value: Date) { return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`; }
+function addDays(value: Date, count: number) { return new Date(value.getTime() + count * DAY_MS); }
+function monday(value: Date) { return addDays(value, 1 - (value.getDay() || 7)); }
+function staysOn(stays: Stay[], day: Date) { const value = iso(day); return stays.filter((stay) => stay.checkIn <= value && stay.checkOut > value); }
 
 export default async function Dashboard() {
   const data = await getAppData();
-  const stock = readiness(data.inventory);
-  const nextStay = data.stays.find((stay) => stay.status === "planned" && stay.checkIn >= new Date().toISOString().slice(0, 10));
+  const stays = [...data.stays].filter((stay) => stay.status !== "cancelled").sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+  const today = fromIso(iso(new Date()));
+  const firstUpcoming = stays.find((stay) => stay.checkOut >= iso(today));
+  const start = monday(firstUpcoming ? fromIso(firstUpcoming.checkIn) : today);
+  const weeks = Array.from({ length: 4 }, (_, index) => addDays(start, index * 7));
+  const registrations = data.checkInRegistrations ?? [];
+  const waitingForGuest = registrations.filter((item) => !item.submittedAt).length;
+  const readyToReport = registrations.filter((item) => item.submittedAt && !item.reportedAt).length;
+  const openTasks = (data.supplyTasks ?? []).filter((item) => !item.completedAt);
+
   return <>
-    <section className="hero">
-      <span className="eyebrow">Přehled apartmánu</span>
-      <h1>Co je potřeba udělat?</h1>
-      <p>Stav vychází jen z potvrzených údajů. Nezařazené kusy nikdy nevytvoří falešnou připravenost.</p>
+    <section className="dashboard-heading">
+      <div><span className="eyebrow">Provoz apartmánu</span><h1>Co nás čeká</h1><p>Kalendář, údaje hostů a provozní úkoly na jednom místě.</p></div>
+      <Link className="button" href="/pobyty/novy"><CalendarIcon/>Přidat pobyt</Link>
     </section>
 
-    <div className="status-grid">
-      {stock.kind === "unknown" ? (
-        <StatusCard tone="warn" eyebrow="Inventář" title="Nejdřív rozděl zásoby" text="Výchozí počty známe, ale nevíme, co je čisté v bytě, doma nebo právě používané." href="/inventar" action="Otevřít inventuru" />
-      ) : (
-        <StatusCard tone={stock.kind === "ready" ? "good" : "warn"} eyebrow="Čistá rezerva v bytě" title={`${stock.turns} ${stock.turns === 1 ? "příprava" : "přípravy"}`} text={stock.limiter ? `Omezuje: ${stock.limiter.name}` : "Chybí povinné položky."} href="/inventar" />
-      )}
-      <StatusCard tone={nextStay ? "neutral" : "good"} eyebrow="Nejbližší pobyt" title={nextStay ? date.format(new Date(`${nextStay.checkIn}T12:00:00`)) : "Žádný pobyt"} text={nextStay ? `${nextStay.guests} hosté · příprava pro ${nextStay.preparationGuests}` : "Přidej ručně první rezervaci. iCal přijde v další části."} href="/pobyty" />
-    </div>
-
-    <section className="section-block">
-      <div className="section-heading"><div><span className="eyebrow">Rychlé akce</span><h2>Začni tady</h2></div></div>
-      <div className="quick-grid">
-        <Link className="quick-action primary" href="/inventar"><PlusIcon/><span><strong>Provést inventuru</strong><small>Rozdělit skutečné kusy podle místa a stavu</small></span><ArrowIcon/></Link>
-        <Link className="quick-action" href="/pobyty/novy"><CalendarIcon/><span><strong>Přidat pobyt</strong><small>Ručně zadat příjezd, odjezd a počet hostů</small></span><ArrowIcon/></Link>
-        <Link className="quick-action" href="/cesta"><VanIcon/><span><strong>Připravit cestu</strong><small>Co přivézt z domova a co dokoupit</small></span><ArrowIcon/></Link>
-      </div>
+    <section className="dashboard-calendar" aria-labelledby="dashboard-calendar-title">
+      <div className="section-heading"><div><span className="eyebrow">Nejbližší 4 týdny</span><h2 id="dashboard-calendar-title">Kalendář pobytů</h2></div><Link className="text-link" href="/pobyty">Celý kalendář <ArrowIcon/></Link></div>
+      <div className="calendar-scroll"><div className="week-calendar dashboard-week-calendar"><div className="calendar-corner">Týden</div>{Array.from({ length: 7 }, (_, index) => <div className="calendar-weekday" key={index}>{weekday.format(addDays(start, index))}</div>)}{weeks.flatMap((weekStart) => [<div className="calendar-week-label" key={`${iso(weekStart)}-label`}>{shortDate.format(weekStart)} – {shortDate.format(addDays(weekStart, 6))}</div>, ...Array.from({ length: 7 }, (_, index) => { const day = addDays(weekStart, index); const matches = staysOn(stays, day); return <div className={`calendar-day${iso(day) === iso(today) ? " today" : ""}`} key={iso(day)}><time dateTime={iso(day)}>{shortDate.format(day)}</time>{matches.map((stay) => <Link className={`calendar-stay ${stay.source}`} href="/pobyty" key={stay.id}><strong>{stay.source === "airbnb" ? "Airbnb" : "Pobyt"}</strong><span>{stay.guests} {stay.guests === 1 ? "host" : "hosté"}</span></Link>)}</div>; })])}</div></div>
+      {!stays.length && <div className="calendar-empty"><strong>Žádné pobyty v kalendáři</strong><span>Přidej pobyt ručně nebo synchronizuj Airbnb v detailu pobytů.</span></div>}
     </section>
 
-    <section className="info-strip"><strong>Bezpečný provoz</strong><span>Produkce je chráněná heslem; data jsou při nastavení DATABASE_URL uložená v PostgreSQL.</span></section>
+    <section className="dashboard-checkin">
+      <div><span className="eyebrow">Cizinecká policie</span><h2>Check-in formuláře</h2><p>{readyToReport ? `${readyToReport} ${readyToReport === 1 ? "hlášení je" : "hlášení jsou"} připravená k odeslání.` : waitingForGuest ? `${waitingForGuest} ${waitingForGuest === 1 ? "host ještě nevyplnil formulář." : "hosté ještě nevyplnili formulář."}` : "Zatím není nic k odeslání."}</p></div>
+      <div className="checkin-stat"><strong>{readyToReport}</strong><span>k odeslání</span></div>
+      <Link className="button" href="/cizinecka-policie">Otevřít check-iny <ArrowIcon/></Link>
+    </section>
+
+    {openTasks.length > 0 && <section className="dashboard-tasks"><div className="section-heading"><div><span className="eyebrow">Připravit nebo dokoupit</span><h2>{openTasks.length} {openTasks.length === 1 ? "otevřená položka" : "otevřené položky"}</h2></div><Link className="text-link" href="/inventar">Otevřít zásoby <ArrowIcon/></Link></div><div className="task-preview">{openTasks.slice(0, 3).map((task) => <span key={task.id}>{task.name} · {task.quantity} ks{task.stayId ? " · přiřazeno k pobytu" : ""}</span>)}</div></section>}
   </>;
 }

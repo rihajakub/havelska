@@ -2,14 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { addStay, createCheckInRegistration, markCheckInReported, replaceAirbnbStays, submitCheckInRegistration, updateCheckInTemplate, updateInventory, updateStayGuests } from "@/data/repository";
+import { addCleaningSupply, addStay, addSupplyTask, adjustCleaningSupply, completeSupplyTask, createCheckInRegistration, markCheckInReported, replaceAirbnbStays, submitCheckInRegistration, updateCheckInTemplate, updateLinenInventory, updateStayGuests } from "@/data/repository";
 import { parseAirbnbCalendar } from "@/data/airbnb";
 import { STOCK_STATES } from "@/domain/inventory";
 import type { CheckInGuest, CheckInTemplate, StockState } from "@/domain/types";
 
-function assertLocalDevelopment() {
-  if (process.env.VERCEL || process.env.LOCAL_DEV_BYPASS_AUTH !== "true") {
-    throw new Error("Zápis je povolen pouze v lokálním vývojovém režimu.");
+function assertDashboardWriteAllowed() {
+  if (process.env.VERCEL && process.env.ENABLE_PRODUCTION_APP !== "true") {
+    throw new Error("Produkční provoz není povolen.");
   }
 }
 
@@ -19,19 +19,16 @@ const asCount = (value: FormDataEntryValue | null) => {
   return count;
 };
 
-export async function saveInventory(formData: FormData) {
-  assertLocalDevelopment();
+export async function saveLinenInventory(formData: FormData) {
+  assertDashboardWriteAllowed();
   const id = String(formData.get("id") ?? "");
-  const stock = Object.fromEntries(
-    STOCK_STATES.map((state) => [state, asCount(formData.get(state))]),
-  ) as Record<StockState, number>;
-  await updateInventory(id, stock);
+  await updateLinenInventory(id, asCount(formData.get("ready")), asCount(formData.get("inUse")));
   revalidatePath("/");
   revalidatePath("/inventar");
 }
 
 export async function createStay(formData: FormData) {
-  assertLocalDevelopment();
+  assertDashboardWriteAllowed();
   const checkIn = String(formData.get("checkIn") ?? "");
   const checkOut = String(formData.get("checkOut") ?? "");
   const guests = asCount(formData.get("guests"));
@@ -50,6 +47,32 @@ export async function createStay(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/pobyty");
   redirect("/pobyty");
+}
+
+export async function addSupply(formData: FormData) {
+  assertDashboardWriteAllowed();
+  await addCleaningSupply(String(formData.get("name") ?? "").trim(), asCount(formData.get("quantity")));
+  revalidatePath("/"); revalidatePath("/inventar");
+}
+
+export async function changeSupplyQuantity(formData: FormData) {
+  assertDashboardWriteAllowed();
+  const adjustment = Number(formData.get("adjustment") ?? 0);
+  if (!Number.isInteger(adjustment) || adjustment === 0) throw new Error("Neplatná změna množství.");
+  await adjustCleaningSupply(String(formData.get("id") ?? ""), adjustment);
+  revalidatePath("/"); revalidatePath("/inventar");
+}
+
+export async function createSupplyTask(formData: FormData) {
+  assertDashboardWriteAllowed();
+  await addSupplyTask(String(formData.get("name") ?? "").trim(), asCount(formData.get("quantity")), String(formData.get("stayId") ?? ""), String(formData.get("note") ?? "").trim());
+  revalidatePath("/"); revalidatePath("/inventar");
+}
+
+export async function resolveSupplyTask(formData: FormData) {
+  assertDashboardWriteAllowed();
+  await completeSupplyTask(String(formData.get("id") ?? ""));
+  revalidatePath("/"); revalidatePath("/inventar");
 }
 
 export async function syncAirbnbCalendar() {

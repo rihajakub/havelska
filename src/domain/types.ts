@@ -84,11 +84,31 @@ export interface CheckInTemplate {
   purposes: string[];
 }
 
+export interface CleaningSupply {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: "ks";
+  updatedAt: string;
+}
+
+export interface SupplyTask {
+  id: string;
+  name: string;
+  quantity: number;
+  stayId?: string;
+  note?: string;
+  completedAt?: string;
+  createdAt: string;
+}
+
 export interface AppData {
   schemaVersion: 1;
   inventory: InventoryItem[];
   stays: Stay[];
   checkInRegistrations?: CheckInRegistration[];
   checkInTemplate?: CheckInTemplate;
+  cleaningSupplies?: CleaningSupply[];
+  supplyTasks?: SupplyTask[];
   updatedAt: string;
 }

@@ -1,40 +1,24 @@
+import { addSupply, changeSupplyQuantity, createSupplyTask, resolveSupplyTask, saveLinenInventory } from "@/app/actions";
 import { getAppData } from "@/data/repository";
-import { cleanTurns, readiness, STOCK_LABELS, STOCK_STATES, stockTotal } from "@/domain/inventory";
-import { saveInventory } from "../actions";
 
 export const dynamic = "force-dynamic";
 
+const date = new Intl.DateTimeFormat("cs-CZ", { day: "numeric", month: "short" });
+
 export default async function InventoryPage() {
   const data = await getAppData();
-  const state = readiness(data.inventory);
+  const linens = data.inventory.filter((item) => item.category !== "consumable");
+  const supplies = [...(data.cleaningSupplies ?? [])].sort((a, b) => a.name.localeCompare(b.name, "cs"));
+  const tasks = (data.supplyTasks ?? []).filter((item) => !item.completedAt);
+  const staysById = new Map(data.stays.map((stay) => [stay.id, stay]));
+  const futureStays = data.stays.filter((stay) => stay.status !== "cancelled" && stay.checkOut >= new Date().toISOString().slice(0, 10));
   return <>
-    <section className="page-heading"><span className="eyebrow">Skutečný stav</span><h1>Inventář prádla</h1><p>U každé položky rozděl všechny vlastněné kusy. Součet musí odpovídat hodnotě „celkem“.</p></section>
-    <section className={`summary ${state.kind}`}>
-      <span>{state.kind === "unknown" ? "Nelze určit" : `${state.turns} kompletní přípravy`}</span>
-      <small>{state.kind === "unknown" ? "Některé kusy jsou stále nezařazené." : `Omezující položka: ${state.limiter?.name ?? "—"}`}</small>
-    </section>
-    <div className="inventory-list">
-      {data.inventory.map((item) => (
-        <details className="inventory-card" key={item.id} open={item.stock.unassigned > 0 && item.critical}>
-          <summary>
-            <div><strong>{item.name}</strong><small>{item.owned} {item.unit} celkem{item.perTurn ? ` · ${item.perTurn} na přípravu` : ""}</small></div>
-            <div className="stock-number"><strong>{item.stock.apartmentClean}</strong><small>čisté v bytě</small></div>
-            <span className={item.stock.unassigned > 0 ? "dot warn" : "dot good"}/>
-          </summary>
-          <form action={saveInventory} className="inventory-form">
-            <input type="hidden" name="id" value={item.id}/>
-            <div className="count-grid">
-              {STOCK_STATES.map((stockState) => (
-                <label key={stockState} className={stockState === "unassigned" ? "unassigned" : ""}>
-                  <span>{STOCK_LABELS[stockState]}</span>
-                  <input name={stockState} type="number" min="0" step="1" defaultValue={item.stock[stockState]} inputMode="numeric"/>
-                </label>
-              ))}
-            </div>
-            <div className="form-footer"><span>Zařazeno: {stockTotal(item)} / {item.owned} {item.unit}{cleanTurns(item) !== null ? ` · rezerva ${cleanTurns(item)} příprav` : ""}</span><button type="submit">Uložit stav</button></div>
-          </form>
-        </details>
-      ))}
-    </div>
+    <section className="page-heading"><span className="eyebrow">Provozní zásoby</span><h1>Prádlo a čisticí prostředky</h1><p>Jen dva stavy prádla a jednoduché zaznamenání zásob, které se při provozu spotřebovávají.</p></section>
+
+    <section className="inventory-section"><div className="section-heading"><div><span className="eyebrow">Prádlo</span><h2>Připravené a používané</h2></div><p className="section-copy">Ostatní kusy se nepočítají jako připravené.</p></div><div className="linen-list">{linens.map((item) => <form action={saveLinenInventory} className="linen-card" key={item.id}><input type="hidden" name="id" value={item.id}/><div className="linen-name"><strong>{item.name}</strong><small>{item.owned} {item.unit} celkem</small></div><label><span>Připravené k použití</span><input name="ready" type="number" min="0" max={item.owned} defaultValue={item.stock.apartmentClean} inputMode="numeric"/></label><label><span>Právě používané</span><input name="inUse" type="number" min="0" max={item.owned} defaultValue={item.stock.apartmentInUse} inputMode="numeric"/></label><button className="button secondary" type="submit">Uložit</button></form>)}</div></section>
+
+    <section className="inventory-section supply-section"><div className="section-heading"><div><span className="eyebrow">Čisticí prostředky</span><h2>Co je skladem</h2></div></div><form action={addSupply} className="add-supply-form"><label><span>Název prostředku</span><input name="name" required placeholder="Např. tablety do myčky"/></label><label><span>Počet kusů</span><input name="quantity" required type="number" min="1" defaultValue="1" inputMode="numeric"/></label><button className="button" type="submit">Přidat do zásob</button></form>{supplies.length ? <div className="supply-list">{supplies.map((supply) => <article className="supply-card" key={supply.id}><div><strong>{supply.name}</strong><small>Aktualizováno {date.format(new Date(supply.updatedAt))}</small></div><strong className="supply-count">{supply.quantity} ks</strong><div className="supply-actions"><form action={changeSupplyQuantity}><input type="hidden" name="id" value={supply.id}/><input type="hidden" name="adjustment" value="-1"/><button className="button secondary" type="submit" disabled={supply.quantity === 0}>Spotřebovat 1</button></form><form action={changeSupplyQuantity}><input type="hidden" name="id" value={supply.id}/><input type="hidden" name="adjustment" value="1"/><button className="button secondary" type="submit">+1 kus</button></form></div></article>)}</div> : <p className="empty-inline">Zatím nejsou evidované žádné čisticí prostředky.</p>}</section>
+
+    <section className="inventory-section task-section"><div className="section-heading"><div><span className="eyebrow">Nákup a příprava</span><h2>Co vzít nebo dokoupit</h2></div><p className="section-copy">Položku lze přiřadit k pobytu, aby nezapadla.</p></div><form action={createSupplyTask} className="task-form"><label><span>Položka</span><input name="name" required placeholder="Např. houbičky do kuchyně"/></label><label><span>Počet</span><input name="quantity" required type="number" min="1" defaultValue="1" inputMode="numeric"/></label><label><span>Přiřadit k pobytu</span><select name="stayId" defaultValue=""><option value="">Bez konkrétního pobytu</option>{futureStays.map((stay) => <option key={stay.id} value={stay.id}>{date.format(new Date(`${stay.checkIn}T12:00:00`))} – {date.format(new Date(`${stay.checkOut}T12:00:00`))}</option>)}</select></label><label className="task-note"><span>Poznámka</span><input name="note" placeholder="Volitelné"/></label><button className="button" type="submit">Přidat na seznam</button></form>{tasks.length ? <div className="task-list">{tasks.map((task) => { const stay = task.stayId ? staysById.get(task.stayId) : undefined; return <article className="task-card" key={task.id}><div><strong>{task.name} · {task.quantity} ks</strong><small>{stay ? `Pobyt ${date.format(new Date(`${stay.checkIn}T12:00:00`))} – ${date.format(new Date(`${stay.checkOut}T12:00:00`))}` : "Bez přiřazeného pobytu"}{task.note ? ` · ${task.note}` : ""}</small></div><form action={resolveSupplyTask}><input type="hidden" name="id" value={task.id}/><button className="button secondary" type="submit">Hotovo</button></form></article>; })}</div> : <p className="empty-inline">Seznam je prázdný — nic nemusíš brát ani dokupovat.</p>}</section>
   </>;
 }

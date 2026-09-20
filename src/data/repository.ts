@@ -4,7 +4,7 @@ import path from "node:path";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { createSeedData } from "./seed";
 import { readPostgresData, writePostgresData } from "./postgres";
-import type { AppData, CheckInGuest, CheckInRegistration, CheckInTemplate, InventoryItem, Stay, StockState } from "@/domain/types";
+import type { AppData, CheckInGuest, CheckInRegistration, CheckInTemplate, CleaningSupply, InventoryItem, Stay, StockState, SupplyTask } from "@/domain/types";
 import { stockTotal } from "@/domain/inventory";
 import { decryptCheckInData, encryptCheckInData } from "./check-in-crypto";
 import { defaultCheckInTemplate } from "./check-in-template";
@@ -60,6 +60,56 @@ export async function updateInventory(id: string, stock: Record<StockState, numb
     throw new Error(`Součet stavů musí být ${item.owned} ${item.unit}.`);
   }
   item.stock = stock;
+  await writeData(data);
+}
+
+export async function updateLinenInventory(id: string, ready: number, inUse: number) {
+  const data = await readData();
+  const item = data.inventory.find((candidate) => candidate.id === id);
+  if (!item) throw new Error("Položka nebyla nalezena.");
+  if (!Number.isInteger(ready) || !Number.isInteger(inUse) || ready < 0 || inUse < 0 || ready + inUse > item.owned) {
+    throw new Error(`Součet připravených a používaných kusů nesmí překročit ${item.owned} ${item.unit}.`);
+  }
+  item.stock = {
+    apartmentClean: ready, apartmentPrepared: 0, apartmentInUse: inUse, apartmentDirty: 0,
+    homeClean: 0, homeDirty: 0, inTransit: 0, unusable: 0, unassigned: item.owned - ready - inUse,
+  };
+  await writeData(data);
+}
+
+export async function addCleaningSupply(name: string, quantity: number) {
+  if (!name || !Number.isInteger(quantity) || quantity < 1) throw new Error("Zadej název a kladný počet kusů.");
+  const data = await readData();
+  const now = new Date().toISOString();
+  const existing = (data.cleaningSupplies ?? []).find((item) => item.name.toLocaleLowerCase("cs") === name.toLocaleLowerCase("cs"));
+  if (existing) { existing.quantity += quantity; existing.updatedAt = now; }
+  else data.cleaningSupplies = [...(data.cleaningSupplies ?? []), { id: randomUUID(), name, quantity, unit: "ks", updatedAt: now } satisfies CleaningSupply];
+  await writeData(data);
+}
+
+export async function adjustCleaningSupply(id: string, adjustment: number) {
+  const data = await readData();
+  const supply = (data.cleaningSupplies ?? []).find((item) => item.id === id);
+  if (!supply) throw new Error("Prostředek nebyl nalezen.");
+  if (!Number.isInteger(adjustment) || supply.quantity + adjustment < 0) throw new Error("Počet kusů nemůže být záporný.");
+  supply.quantity += adjustment;
+  supply.updatedAt = new Date().toISOString();
+  await writeData(data);
+}
+
+export async function addSupplyTask(name: string, quantity: number, stayId?: string, note?: string) {
+  if (!name || !Number.isInteger(quantity) || quantity < 1) throw new Error("Zadej položku a kladný počet kusů.");
+  const data = await readData();
+  const task: SupplyTask = { id: randomUUID(), name, quantity, stayId: stayId || undefined, note: note || undefined, createdAt: new Date().toISOString() };
+  data.supplyTasks = [...(data.supplyTasks ?? []), task];
+  await writeData(data);
+}
+
+export async function completeSupplyTask(id: string) {
+  const data = await readData();
+  const task = (data.supplyTasks ?? []).find((item) => item.id === id);
+  if (!task) throw new Error("Položka nebyla nalezena.");
+  task.completedAt = new Date().toISOString();
   await writeData(data);
 }
 
