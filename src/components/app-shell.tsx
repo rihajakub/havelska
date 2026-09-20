@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { BoxIcon, CalendarIcon, HomeIcon, VanIcon } from "./icons";
 
 const links = [
@@ -10,6 +13,8 @@ const links = [
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  if (pathname.startsWith("/check-in/")) return <>{children}</>;
   return (
     <div className="app-shell">
       <header className="topbar">

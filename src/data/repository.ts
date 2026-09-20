@@ -108,7 +108,7 @@ export async function getCheckInRegistrationByToken(token: string) {
 export async function submitCheckInRegistration(token: string, guests: CheckInGuest[]) {
   const data = await readData();
   const registration = (data.checkInRegistrations ?? []).find((item) => item.tokenHash === tokenHash(token));
-  if (!registration || new Date(registration.expiresAt) < new Date()) throw new Error("Tento check-in odkaz už není platný.");
+  if (!registration || new Date(registration.expiresAt) < new Date()) throw new Error("This check-in link is no longer valid.");
   registration.encryptedGuests = encryptCheckInData(JSON.stringify(guests));
   registration.submittedAt = new Date().toISOString();
   await writeData(data);

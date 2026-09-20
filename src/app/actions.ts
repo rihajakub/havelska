@@ -79,14 +79,14 @@ export async function markReported(formData: FormData) {
 
 const guestField = (formData: FormData, index: number, field: keyof CheckInGuest, required = true) => {
   const value = String(formData.get(`guest-${index}-${field}`) ?? "").trim();
-  if (required && !value) throw new Error("Vyplň prosím všechny povinné údaje pro každého hosta.");
+  if (required && !value) throw new Error("Please complete all required details for every guest.");
   return value;
 };
 
 export async function submitCheckInForm(formData: FormData) {
   const token = String(formData.get("token") ?? "");
   const count = Number(formData.get("guestCount") ?? 0);
-  if (!token || !Number.isInteger(count) || count < 1 || count > 4) throw new Error("Neplatný počet hostů.");
+  if (!token || !Number.isInteger(count) || count < 1 || count > 4) throw new Error("The number of guests is invalid.");
   const guests = Array.from({ length: count }, (_, index): CheckInGuest => ({
     firstName: guestField(formData, index, "firstName"), lastName: guestField(formData, index, "lastName"),
     birthDate: guestField(formData, index, "birthDate"), nationality: guestField(formData, index, "nationality"),
