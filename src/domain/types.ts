@@ -59,10 +59,36 @@ export interface CheckInRegistration {
   reportedAt?: string;
 }
 
+export interface CheckInTemplate {
+  title: string;
+  introduction: string;
+  stayLabel: string;
+  documentNotice: string;
+  arrivalLabel: string;
+  departureLabel: string;
+  guestLabel: string;
+  firstNameLabel: string;
+  lastNameLabel: string;
+  birthDateLabel: string;
+  nationalityLabel: string;
+  travelDocumentLabel: string;
+  visaLabel: string;
+  addressCountryLabel: string;
+  addressLabel: string;
+  addressHelp: string;
+  purposeLabel: string;
+  purposeOtherLabel: string;
+  addGuestLabel: string;
+  removeGuestLabel: string;
+  submitLabel: string;
+  purposes: string[];
+}
+
 export interface AppData {
   schemaVersion: 1;
   inventory: InventoryItem[];
   stays: Stay[];
   checkInRegistrations?: CheckInRegistration[];
+  checkInTemplate?: CheckInTemplate;
   updatedAt: string;
 }

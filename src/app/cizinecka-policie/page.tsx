@@ -16,7 +16,7 @@ export default async function ForeignPolicePage() {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   const origin = host ? `${requestHeaders.get("x-forwarded-proto") ?? "https"}://${host}` : "";
   return <>
-    <section className="page-heading"><span className="eyebrow">Evidence cizinců</span><h1>Check-in a domovní kniha</h1><p>Odkaz pošli hlavnímu hostovi přes Airbnb. Údaje vyplní za všechny zahraniční hosty, nejvýše za čtyři osoby.</p></section>
+    <section className="page-heading"><span className="eyebrow">Evidence cizinců</span><h1>Check-in a domovní kniha</h1><p>Odkaz pošli hlavnímu hostovi přes Airbnb. Údaje vyplní za všechny zahraniční hosty, nejvýše za čtyři osoby.</p><Link className="button secondary" href="/cizinecka-policie/template">Upravit šablonu formuláře</Link></section>
     {setupError && <section className="notice"><strong>Ještě není připraveno pro osobní údaje.</strong><span>V produkci nastav tajnou proměnnou CHECKIN_DATA_ENCRYPTION_KEY: {setupError}</span></section>}
     <section className="notice"><strong>Právní provoz:</strong><span>Digitální záznam je pracovní kopie. Pro kontrolu je nutné uchovat listinnou domovní knihu / podepsané přihlašovací listy.</span></section>
     <section className="registration-list">{[...stays].sort((a, b) => a.checkIn.localeCompare(b.checkIn)).map((stay) => {

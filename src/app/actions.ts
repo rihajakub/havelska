@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { addStay, createCheckInRegistration, markCheckInReported, replaceAirbnbStays, submitCheckInRegistration, updateInventory, updateStayGuests } from "@/data/repository";
+import { addStay, createCheckInRegistration, markCheckInReported, replaceAirbnbStays, submitCheckInRegistration, updateCheckInTemplate, updateInventory, updateStayGuests } from "@/data/repository";
 import { parseAirbnbCalendar } from "@/data/airbnb";
 import { STOCK_STATES } from "@/domain/inventory";
-import type { CheckInGuest, StockState } from "@/domain/types";
+import type { CheckInGuest, CheckInTemplate, StockState } from "@/domain/types";
 
 function assertLocalDevelopment() {
   if (process.env.VERCEL || process.env.LOCAL_DEV_BYPASS_AUTH !== "true") {
@@ -70,6 +70,15 @@ export async function createCheckInLink(formData: FormData) {
 export async function updateGuests(formData: FormData) {
   await updateStayGuests(String(formData.get("stayId") ?? ""), asCount(formData.get("guests")));
   revalidatePath("/"); revalidatePath("/pobyty"); revalidatePath("/cizinecka-policie");
+}
+
+export async function saveCheckInTemplate(formData: FormData) {
+  const fields = ["title", "introduction", "stayLabel", "documentNotice", "arrivalLabel", "departureLabel", "guestLabel", "firstNameLabel", "lastNameLabel", "birthDateLabel", "nationalityLabel", "travelDocumentLabel", "visaLabel", "addressCountryLabel", "addressLabel", "addressHelp", "purposeLabel", "purposeOtherLabel", "addGuestLabel", "removeGuestLabel", "submitLabel"] as const;
+  const template = Object.fromEntries(fields.map((field) => [field, String(formData.get(field) ?? "").trim()])) as Omit<CheckInTemplate, "purposes">;
+  const purposes = String(formData.get("purposes") ?? "").split("\n").map((value) => value.trim()).filter(Boolean);
+  if (Object.values(template).some((value) => !value) || !purposes.length) throw new Error("Šablona musí obsahovat všechny texty a alespoň jeden účel cesty.");
+  await updateCheckInTemplate({ ...template, purposes });
+  revalidatePath("/cizinecka-policie/template"); revalidatePath("/check-in/[token]", "page");
 }
 
 export async function markReported(formData: FormData) {

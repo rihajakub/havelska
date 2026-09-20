@@ -4,9 +4,10 @@ import path from "node:path";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { createSeedData } from "./seed";
 import { readPostgresData, writePostgresData } from "./postgres";
-import type { AppData, CheckInGuest, CheckInRegistration, InventoryItem, Stay, StockState } from "@/domain/types";
+import type { AppData, CheckInGuest, CheckInRegistration, CheckInTemplate, InventoryItem, Stay, StockState } from "@/domain/types";
 import { stockTotal } from "@/domain/inventory";
 import { decryptCheckInData, encryptCheckInData } from "./check-in-crypto";
+import { defaultCheckInTemplate } from "./check-in-template";
 
 const dataDir = path.join(process.cwd(), ".data");
 const dataFile = path.join(dataDir, "local.json");
@@ -37,6 +38,17 @@ async function writeData(data: AppData) {
 
 export async function getAppData() {
   return readData();
+}
+
+export async function getCheckInTemplate() {
+  const data = await readData();
+  return { ...defaultCheckInTemplate, ...data.checkInTemplate, purposes: data.checkInTemplate?.purposes?.length ? data.checkInTemplate.purposes : defaultCheckInTemplate.purposes };
+}
+
+export async function updateCheckInTemplate(template: CheckInTemplate) {
+  const data = await readData();
+  data.checkInTemplate = template;
+  await writeData(data);
 }
 
 export async function updateInventory(id: string, stock: Record<StockState, number>) {
