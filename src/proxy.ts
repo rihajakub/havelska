@@ -9,6 +9,7 @@ function unauthorized() {
 
 export function proxy(request: NextRequest) {
   if (!process.env.VERCEL || process.env.ENABLE_PRODUCTION_APP !== "true") return NextResponse.next();
+  if (request.nextUrl.pathname.startsWith("/check-in/")) return NextResponse.next();
   const password = process.env.APP_PASSWORD;
   if (!password) return new NextResponse("Produkční heslo není nastavené.", { status: 503 });
   const authorization = request.headers.get("authorization");

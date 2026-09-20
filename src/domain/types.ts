@@ -33,10 +33,33 @@ export interface Stay {
   source: "manual" | "airbnb";
 }
 
+export interface CheckInGuest {
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  nationality: string;
+  travelDocumentNumber: string;
+  visaOrResidence: string;
+  foreignAddress: string;
+  purposeOfStay: string;
+}
+
+export interface CheckInRegistration {
+  id: string;
+  stayId: string;
+  tokenHash: string;
+  encryptedToken: string;
+  encryptedGuests?: string;
+  createdAt: string;
+  expiresAt: string;
+  submittedAt?: string;
+  reportedAt?: string;
+}
+
 export interface AppData {
   schemaVersion: 1;
   inventory: InventoryItem[];
   stays: Stay[];
+  checkInRegistrations?: CheckInRegistration[];
   updatedAt: string;
 }
-

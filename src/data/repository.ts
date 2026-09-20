@@ -1,11 +1,12 @@
 import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { createSeedData } from "./seed";
 import { readPostgresData, writePostgresData } from "./postgres";
-import type { AppData, InventoryItem, Stay, StockState } from "@/domain/types";
+import type { AppData, CheckInGuest, CheckInRegistration, InventoryItem, Stay, StockState } from "@/domain/types";
 import { stockTotal } from "@/domain/inventory";
+import { decryptCheckInData, encryptCheckInData } from "./check-in-crypto";
 
 const dataDir = path.join(process.cwd(), ".data");
 const dataFile = path.join(dataDir, "local.json");
@@ -60,5 +61,55 @@ export async function addStay(stay: Stay) {
 export async function replaceAirbnbStays(stays: Stay[]) {
   const data = await readData();
   data.stays = [...data.stays.filter((stay) => stay.source !== "airbnb"), ...stays].sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+  await writeData(data);
+}
+
+const tokenHash = (token: string) => createHash("sha256").update(token).digest("hex");
+
+export async function createCheckInRegistration(stayId: string) {
+  const data = await readData();
+  const stay = data.stays.find((candidate) => candidate.id === stayId);
+  if (!stay) throw new Error("Pobyt nebyl nalezen.");
+  const token = randomBytes(32).toString("base64url");
+  const registration: CheckInRegistration = {
+    id: randomUUID(), stayId, tokenHash: tokenHash(token), encryptedToken: encryptCheckInData(token),
+    createdAt: new Date().toISOString(), expiresAt: `${stay.checkOut}T23:59:59.999Z`,
+  };
+  data.checkInRegistrations = [...(data.checkInRegistrations ?? []).filter((item) => item.stayId !== stayId), registration];
+  await writeData(data);
+  return registration;
+}
+
+export async function getCheckInRegistrationByToken(token: string) {
+  const data = await readData();
+  const registration = (data.checkInRegistrations ?? []).find((item) => item.tokenHash === tokenHash(token));
+  if (!registration) return undefined;
+  const stay = data.stays.find((candidate) => candidate.id === registration.stayId);
+  return stay ? { registration, stay } : undefined;
+}
+
+export async function submitCheckInRegistration(token: string, guests: CheckInGuest[]) {
+  const data = await readData();
+  const registration = (data.checkInRegistrations ?? []).find((item) => item.tokenHash === tokenHash(token));
+  if (!registration || new Date(registration.expiresAt) < new Date()) throw new Error("Tento check-in odkaz už není platný.");
+  registration.encryptedGuests = encryptCheckInData(JSON.stringify(guests));
+  registration.submittedAt = new Date().toISOString();
+  await writeData(data);
+}
+
+export async function getCheckInRegistrations() {
+  const data = await readData();
+  return (data.checkInRegistrations ?? []).flatMap((registration) => {
+    const stay = data.stays.find((candidate) => candidate.id === registration.stayId);
+    if (!stay) return [];
+    return [{ registration, stay, token: decryptCheckInData(registration.encryptedToken), guests: registration.encryptedGuests ? JSON.parse(decryptCheckInData(registration.encryptedGuests)) as CheckInGuest[] : undefined }];
+  }).sort((a, b) => a.stay.checkIn.localeCompare(b.stay.checkIn));
+}
+
+export async function markCheckInReported(id: string) {
+  const data = await readData();
+  const registration = (data.checkInRegistrations ?? []).find((item) => item.id === id);
+  if (!registration) throw new Error("Záznam nebyl nalezen.");
+  registration.reportedAt = new Date().toISOString();
   await writeData(data);
 }

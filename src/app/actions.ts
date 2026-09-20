@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { addStay, replaceAirbnbStays, updateInventory } from "@/data/repository";
+import { addStay, createCheckInRegistration, markCheckInReported, replaceAirbnbStays, submitCheckInRegistration, updateInventory } from "@/data/repository";
 import { parseAirbnbCalendar } from "@/data/airbnb";
 import { STOCK_STATES } from "@/domain/inventory";
-import type { StockState } from "@/domain/types";
+import type { CheckInGuest, StockState } from "@/domain/types";
 
 function assertLocalDevelopment() {
   if (process.env.VERCEL || process.env.LOCAL_DEV_BYPASS_AUTH !== "true") {
@@ -60,4 +60,33 @@ export async function syncAirbnbCalendar() {
   if (!response.ok) throw new Error("Airbnb iCal vrátil neplatnou odpověď.");
   await replaceAirbnbStays(parseAirbnbCalendar(await response.text()));
   revalidatePath("/"); revalidatePath("/pobyty");
+}
+
+export async function createCheckInLink(formData: FormData) {
+  await createCheckInRegistration(String(formData.get("stayId") ?? ""));
+  revalidatePath("/cizinecka-policie");
+}
+
+export async function markReported(formData: FormData) {
+  await markCheckInReported(String(formData.get("registrationId") ?? ""));
+  revalidatePath("/cizinecka-policie");
+}
+
+const guestField = (formData: FormData, index: number, field: keyof CheckInGuest, required = true) => {
+  const value = String(formData.get(`guest-${index}-${field}`) ?? "").trim();
+  if (required && !value) throw new Error("Vyplň prosím všechny povinné údaje pro každého hosta.");
+  return value;
+};
+
+export async function submitCheckInForm(formData: FormData) {
+  const token = String(formData.get("token") ?? "");
+  const count = Number(formData.get("guestCount") ?? 0);
+  if (!token || !Number.isInteger(count) || count < 1 || count > 4) throw new Error("Neplatný počet hostů.");
+  const guests = Array.from({ length: count }, (_, index): CheckInGuest => ({
+    firstName: guestField(formData, index, "firstName"), lastName: guestField(formData, index, "lastName"),
+    birthDate: guestField(formData, index, "birthDate"), nationality: guestField(formData, index, "nationality"),
+    travelDocumentNumber: guestField(formData, index, "travelDocumentNumber"), visaOrResidence: guestField(formData, index, "visaOrResidence", false),
+    foreignAddress: guestField(formData, index, "foreignAddress"), purposeOfStay: guestField(formData, index, "purposeOfStay"),
+  }));
+  await submitCheckInRegistration(token, guests);
 }

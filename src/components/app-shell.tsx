@@ -5,6 +5,7 @@ const links = [
   { href: "/", label: "Přehled", Icon: HomeIcon },
   { href: "/inventar", label: "Inventář", Icon: BoxIcon },
   { href: "/pobyty", label: "Pobyty", Icon: CalendarIcon },
+  { href: "/cizinecka-policie", label: "Hlášení", Icon: CalendarIcon },
   { href: "/cesta", label: "Cesta", Icon: VanIcon },
 ];
 
@@ -27,4 +28,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
