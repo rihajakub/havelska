@@ -7,6 +7,17 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: { absolute: "Havelská Apartment" },
   description: "Online check-in",
+  openGraph: {
+    title: "Havelská Apartment",
+    description: "Online check-in",
+    images: [{ url: "/images/quiet-2br-old-town-apartment.jpg", width: 1600, height: 1068, alt: "Quiet 2BR Old Town Apartment" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Havelská Apartment",
+    description: "Online check-in",
+    images: ["/images/quiet-2br-old-town-apartment.jpg"],
+  },
 };
 
 export default async function PublicCheckInPage({ params }: { params: Promise<{ token: string }> }) {
