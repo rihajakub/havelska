@@ -5,6 +5,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Havelská – správa apartmánu",
   description: "Lokální provozní aplikace pro správu pobytů a zásob.",
+  icons: {
+    icon: [{ url: "/images/prague-castle-icon.png", type: "image/png", sizes: "600x600" }],
+    apple: [{ url: "/images/prague-castle-icon.png", type: "image/png", sizes: "600x600" }],
+  },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#152c26" };
