@@ -12,7 +12,7 @@ async function sessionToken(password: string) {
 export async function proxy(request: NextRequest) {
   if (!process.env.VERCEL || process.env.ENABLE_PRODUCTION_APP !== "true") return NextResponse.next();
   const { pathname } = request.nextUrl;
-  if (pathname === "/" || pathname === "/login" || pathname.startsWith("/guest-info") || pathname.startsWith("/check-in/")) return NextResponse.next();
+  if (pathname === "/" || pathname === "/login" || pathname === "/robots.txt" || pathname.startsWith("/guest-info") || pathname.startsWith("/check-in/")) return NextResponse.next();
   const password = process.env.APP_PASSWORD;
   if (!password) return new NextResponse("Produkční heslo není nastavené.", { status: 503 });
   const token = request.cookies.get(SESSION_COOKIE)?.value;
