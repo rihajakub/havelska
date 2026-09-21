@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createHash } from "node:crypto";
 import { addCleaningSupply, addStay, addSupplyTask, adjustCleaningSupply, completeSupplyTask, createCheckInRegistration, markCheckInReported, markStayMessageSent, replaceAirbnbStays, revokeCheckInRegistration, saveCommunicationTemplates, submitCheckInRegistration, toggleStayChecklist, updateCheckInTemplate, updateGuestGuideContent, updateLinenInventory, updateStayGuests, updateStayOperation, updateStayTaxExemption, updateTaxSettlement } from "@/data/repository";
-import { parseAirbnbCalendar } from "@/data/airbnb";
+import { parseAirbnbCalendarResult } from "@/data/airbnb";
 import { STOCK_STATES } from "@/domain/inventory";
 import type { CheckInGuest, CheckInTemplate, CommunicationTemplate, GuestGuideContent, MessageTemplateId, StayChecklistItem } from "@/domain/types";
 
@@ -113,8 +113,10 @@ export async function syncAirbnbCalendar() {
   let response: Response;
   try { response = await fetch(url, { cache: "no-store" }); } catch { throw new Error("Airbnb iCal se nepodařilo načíst."); }
   if (!response.ok) throw new Error("Airbnb iCal vrátil neplatnou odpověď.");
-  await replaceAirbnbStays(parseAirbnbCalendar(await response.text()));
+  const result = parseAirbnbCalendarResult(await response.text());
+  await replaceAirbnbStays(result.stays);
   revalidatePath("/dashboard"); revalidatePath("/pobyty");
+  redirect(`/pobyty?synced=${result.stays.length}&ignored=${result.ignoredEvents}&syncedAt=${Date.now()}`);
 }
 
 export async function createCheckInLink(formData: FormData) {
