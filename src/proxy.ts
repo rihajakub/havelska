@@ -1,25 +1,27 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-function unauthorized() {
-  return new NextResponse("Přihlášení je vyžadováno.", {
-    status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="Havelská", charset="UTF-8"' },
-  });
+const SESSION_COOKIE = "havelska_session";
+
+async function sessionToken(password: string) {
+  const data = new TextEncoder().encode(`havelska-session:${password}`);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  const encoded = btoa(String.fromCharCode(...new Uint8Array(digest)));
+  return encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   if (!process.env.VERCEL || process.env.ENABLE_PRODUCTION_APP !== "true") return NextResponse.next();
-  if (request.nextUrl.pathname.startsWith("/check-in/")) return NextResponse.next();
+  const { pathname } = request.nextUrl;
+  if (pathname === "/" || pathname === "/login" || pathname.startsWith("/guest-info") || pathname.startsWith("/check-in/")) return NextResponse.next();
   const password = process.env.APP_PASSWORD;
   if (!password) return new NextResponse("Produkční heslo není nastavené.", { status: 503 });
-  const authorization = request.headers.get("authorization");
-  if (!authorization?.startsWith("Basic ")) return unauthorized();
-  try {
-    const credentials = atob(authorization.slice(6));
-    const separator = credentials.indexOf(":");
-    if (credentials.slice(0, separator) !== "havelska" || credentials.slice(separator + 1) !== password) return unauthorized();
-  } catch { return unauthorized(); }
-  return NextResponse.next();
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  if (token === await sessionToken(password)) return NextResponse.next();
+  const login = request.nextUrl.clone();
+  login.pathname = "/login";
+  login.search = "";
+  login.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
+  return NextResponse.redirect(login);
 }
 
-export const config = { matcher: ["/((?!check-in(?:/|$)|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp)$).*)"] };
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp)$).*)"] };

@@ -3,8 +3,9 @@ import { AppShell } from "@/components/app-shell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Havelská – správa apartmánu",
-  description: "Lokální provozní aplikace pro správu pobytů a zásob.",
+  title: "Havelská Apartment",
+  description: "Quiet 2BR Old Town Apartment in Prague.",
+  robots: { index: false, follow: false, googleBot: { index: false, follow: false } },
   icons: {
     icon: [{ url: "/images/prague-castle-icon.png", type: "image/png", sizes: "600x600" }],
     apple: [{ url: "/images/prague-castle-icon.png", type: "image/png", sizes: "600x600" }],

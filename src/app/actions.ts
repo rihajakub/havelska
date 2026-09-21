@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { createHash } from "node:crypto";
 import { addCleaningSupply, addStay, addSupplyTask, adjustCleaningSupply, completeSupplyTask, createCheckInRegistration, markCheckInReported, markStayMessageSent, replaceAirbnbStays, saveCommunicationTemplates, submitCheckInRegistration, toggleStayChecklist, updateCheckInTemplate, updateLinenInventory, updateStayGuests, updateStayOperation, updateStayTaxExemption, updateTaxSettlement } from "@/data/repository";
 import { parseAirbnbCalendar } from "@/data/airbnb";
 import { STOCK_STATES } from "@/domain/inventory";
@@ -11,6 +13,36 @@ function assertDashboardWriteAllowed() {
   if (process.env.VERCEL && process.env.ENABLE_PRODUCTION_APP !== "true") {
     throw new Error("Produkční provoz není povolen.");
   }
+}
+
+const SESSION_COOKIE = "havelska_session";
+
+export async function login(formData: FormData) {
+  const password = String(formData.get("password") ?? "");
+  const requestedPath = String(formData.get("next") ?? "/dashboard");
+  const next = requestedPath.startsWith("/") && !requestedPath.startsWith("//") ? requestedPath : "/dashboard";
+  const expected = process.env.APP_PASSWORD;
+
+  if (!expected || password !== expected) {
+    redirect(`/login?error=1&next=${encodeURIComponent(next)}`);
+  }
+
+  const token = createHash("sha256").update(`havelska-session:${expected}`).digest("base64url");
+  const store = await cookies();
+  store.set(SESSION_COOKIE, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: Boolean(process.env.VERCEL),
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+  });
+  redirect(next);
+}
+
+export async function logout() {
+  const store = await cookies();
+  store.delete(SESSION_COOKIE);
+  redirect("/");
 }
 
 const asCount = (value: FormDataEntryValue | null) => {
@@ -23,7 +55,7 @@ export async function saveLinenInventory(formData: FormData) {
   assertDashboardWriteAllowed();
   const id = String(formData.get("id") ?? "");
   await updateLinenInventory(id, asCount(formData.get("ready")), asCount(formData.get("inUse")));
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   revalidatePath("/inventar");
 }
 
@@ -44,7 +76,7 @@ export async function createStay(formData: FormData) {
     note: String(formData.get("note") ?? "").trim(),
     source: "manual",
   });
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   revalidatePath("/pobyty");
   redirect("/pobyty");
 }
@@ -52,7 +84,7 @@ export async function createStay(formData: FormData) {
 export async function addSupply(formData: FormData) {
   assertDashboardWriteAllowed();
   await addCleaningSupply(String(formData.get("name") ?? "").trim(), asCount(formData.get("quantity")));
-  revalidatePath("/"); revalidatePath("/inventar");
+  revalidatePath("/dashboard"); revalidatePath("/inventar");
 }
 
 export async function changeSupplyQuantity(formData: FormData) {
@@ -60,19 +92,19 @@ export async function changeSupplyQuantity(formData: FormData) {
   const adjustment = Number(formData.get("adjustment") ?? 0);
   if (!Number.isInteger(adjustment) || adjustment === 0) throw new Error("Neplatná změna množství.");
   await adjustCleaningSupply(String(formData.get("id") ?? ""), adjustment);
-  revalidatePath("/"); revalidatePath("/inventar");
+  revalidatePath("/dashboard"); revalidatePath("/inventar");
 }
 
 export async function createSupplyTask(formData: FormData) {
   assertDashboardWriteAllowed();
   await addSupplyTask(String(formData.get("name") ?? "").trim(), asCount(formData.get("quantity")), String(formData.get("stayId") ?? ""), String(formData.get("note") ?? "").trim());
-  revalidatePath("/"); revalidatePath("/inventar");
+  revalidatePath("/dashboard"); revalidatePath("/inventar");
 }
 
 export async function resolveSupplyTask(formData: FormData) {
   assertDashboardWriteAllowed();
   await completeSupplyTask(String(formData.get("id") ?? ""));
-  revalidatePath("/"); revalidatePath("/inventar");
+  revalidatePath("/dashboard"); revalidatePath("/inventar");
 }
 
 export async function syncAirbnbCalendar() {
@@ -82,7 +114,7 @@ export async function syncAirbnbCalendar() {
   try { response = await fetch(url, { cache: "no-store" }); } catch { throw new Error("Airbnb iCal se nepodařilo načíst."); }
   if (!response.ok) throw new Error("Airbnb iCal vrátil neplatnou odpověď.");
   await replaceAirbnbStays(parseAirbnbCalendar(await response.text()));
-  revalidatePath("/"); revalidatePath("/pobyty");
+  revalidatePath("/dashboard"); revalidatePath("/pobyty");
 }
 
 export async function createCheckInLink(formData: FormData) {
@@ -92,7 +124,7 @@ export async function createCheckInLink(formData: FormData) {
 
 export async function updateGuests(formData: FormData) {
   await updateStayGuests(String(formData.get("stayId") ?? ""), asCount(formData.get("guests")));
-  revalidatePath("/"); revalidatePath("/pobyty"); revalidatePath("/cizinecka-policie");
+  revalidatePath("/dashboard"); revalidatePath("/pobyty"); revalidatePath("/cizinecka-policie");
 }
 
 export async function saveStayOperation(formData: FormData) {
@@ -100,13 +132,13 @@ export async function saveStayOperation(formData: FormData) {
   const keyMethod = String(formData.get("keyMethod") ?? ""); const keyStatus = String(formData.get("keyStatus") ?? "");
   if (!["personal", "lockbox", "smart-lock"].includes(keyMethod) || !["not-arranged", "instructions-sent", "handed-over"].includes(keyStatus)) throw new Error("Neplatný stav předání klíčů.");
   await updateStayOperation(String(formData.get("stayId") ?? ""), { arrivalTime: String(formData.get("arrivalTime") ?? ""), keyMethod: keyMethod as "personal" | "lockbox" | "smart-lock", keyStatus: keyStatus as "not-arranged" | "instructions-sent" | "handed-over" });
-  revalidatePath("/"); revalidatePath("/pobyty"); revalidatePath("/pobyty/[id]", "page");
+  revalidatePath("/dashboard"); revalidatePath("/pobyty"); revalidatePath("/pobyty/[id]", "page");
 }
 
 export async function setChecklistItem(formData: FormData) {
   assertDashboardWriteAllowed();
   await toggleStayChecklist(String(formData.get("stayId") ?? ""), String(formData.get("item") ?? "") as StayChecklistItem, String(formData.get("completed") ?? "") === "true");
-  revalidatePath("/"); revalidatePath("/pobyty/[id]", "page");
+  revalidatePath("/dashboard"); revalidatePath("/pobyty/[id]", "page");
 }
 
 export async function logMessageSent(formData: FormData) {
