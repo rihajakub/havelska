@@ -73,6 +73,7 @@ export interface CheckInRegistration {
   tokenHash: string;
   encryptedToken: string;
   encryptedGuests?: string;
+  expectedGuestCount?: number;
   createdAt: string;
   expiresAt: string;
   submittedAt?: string;

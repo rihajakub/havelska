@@ -158,12 +158,14 @@ export async function submitCheckInForm(formData: FormData) {
   const submittedCheckIn = String(formData.get("submittedCheckIn") ?? "");
   const submittedCheckOut = String(formData.get("submittedCheckOut") ?? "");
   const count = Number(formData.get("guestCount") ?? 0);
+  const mode = String(formData.get("completionMode") ?? "group");
   if (!token || !Number.isInteger(count) || count < 1 || count > 4) throw new Error("The number of guests is invalid.");
+  if (mode !== "group" && mode !== "individual") throw new Error("The submission mode is invalid.");
   const guests = Array.from({ length: count }, (_, index): CheckInGuest => ({
     firstName: guestField(formData, index, "firstName"), lastName: guestField(formData, index, "lastName"),
     birthDate: guestField(formData, index, "birthDate"), nationality: guestField(formData, index, "nationality"),
     travelDocumentNumber: guestField(formData, index, "travelDocumentNumber"), visaOrResidence: guestField(formData, index, "visaOrResidence"),
     foreignAddress: guestField(formData, index, "foreignAddress"), purposeOfStay: guestField(formData, index, "purposeOfStay"),
   }));
-  await submitCheckInRegistration(token, guests, submittedCheckIn, submittedCheckOut);
+  return submitCheckInRegistration(token, guests, submittedCheckIn, submittedCheckOut, mode);
 }

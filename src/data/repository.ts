@@ -197,7 +197,7 @@ export async function createCheckInRegistration(stayId: string) {
   const token = randomBytes(32).toString("base64url");
   const registration: CheckInRegistration = {
     id: randomUUID(), stayId, tokenHash: tokenHash(token), encryptedToken: encryptCheckInData(token),
-    createdAt: new Date().toISOString(), expiresAt: `${stay.checkOut}T23:59:59.999Z`,
+    createdAt: new Date().toISOString(), expiresAt: `${stay.checkOut}T23:59:59.999Z`, expectedGuestCount: Math.min(4, Math.max(1, stay.guests)),
   };
   data.checkInRegistrations = [...(data.checkInRegistrations ?? []).filter((item) => item.stayId !== stayId), registration];
   await writeData(data);
@@ -209,19 +209,30 @@ export async function getCheckInRegistrationByToken(token: string) {
   const registration = (data.checkInRegistrations ?? []).find((item) => item.tokenHash === tokenHash(token));
   if (!registration) return undefined;
   const stay = data.stays.find((candidate) => candidate.id === registration.stayId);
-  return stay ? { registration, stay } : undefined;
+  if (!stay) return undefined;
+  const guests = registration.encryptedGuests ? JSON.parse(decryptCheckInData(registration.encryptedGuests)) as CheckInGuest[] : [];
+  return { registration, stay, completedGuestCount: guests.length, expectedGuestCount: registration.expectedGuestCount ?? Math.min(4, Math.max(1, stay.guests)) };
 }
 
-export async function submitCheckInRegistration(token: string, guests: CheckInGuest[], submittedCheckIn: string, submittedCheckOut: string) {
+export async function submitCheckInRegistration(token: string, guests: CheckInGuest[], submittedCheckIn: string, submittedCheckOut: string, mode: "group" | "individual") {
   const data = await readData();
   const registration = (data.checkInRegistrations ?? []).find((item) => item.tokenHash === tokenHash(token));
   if (!registration || new Date(registration.expiresAt) < new Date()) throw new Error("This check-in link is no longer valid.");
   if (!submittedCheckIn || !submittedCheckOut || submittedCheckOut <= submittedCheckIn) throw new Error("Departure date must be after arrival date.");
-  registration.encryptedGuests = encryptCheckInData(JSON.stringify(guests));
+  const stay = data.stays.find((item) => item.id === registration.stayId);
+  if (!stay) throw new Error("This stay no longer exists.");
+  const storedExpectedGuestCount = registration.expectedGuestCount ?? Math.min(4, Math.max(1, stay.guests));
+  const expectedGuestCount = mode === "group" ? guests.length : storedExpectedGuestCount;
+  const currentGuests = registration.encryptedGuests ? JSON.parse(decryptCheckInData(registration.encryptedGuests)) as CheckInGuest[] : [];
+  const nextGuests = mode === "individual" ? [...currentGuests, ...guests] : guests;
+  if (nextGuests.length > expectedGuestCount) throw new Error("All guest places for this booking have already been completed.");
+  registration.encryptedGuests = encryptCheckInData(JSON.stringify(nextGuests));
   registration.submittedCheckIn = submittedCheckIn;
   registration.submittedCheckOut = submittedCheckOut;
-  registration.submittedAt = new Date().toISOString();
+  registration.expectedGuestCount = expectedGuestCount;
+  registration.submittedAt = mode === "group" || nextGuests.length >= expectedGuestCount ? new Date().toISOString() : undefined;
   await writeData(data);
+  return { completedGuestCount: nextGuests.length, expectedGuestCount, complete: Boolean(registration.submittedAt) };
 }
 
 export async function getCheckInRegistrations() {
