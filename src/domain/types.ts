@@ -107,6 +107,23 @@ export interface CheckInTemplate {
   purposes: string[];
 }
 
+export interface GuestGuideContent {
+  title: string;
+  subtitle: string;
+  welcome: string;
+  arrival: string;
+  keys: string;
+  wifiName: string;
+  wifiPassword: string;
+  apartmentCare: string;
+  utilities: string;
+  recycling: string;
+  appliances: string;
+  pragueTips: string;
+  checkout: string;
+  help: string;
+}
+
 export interface CleaningSupply {
   id: string;
   name: string;
@@ -131,6 +148,7 @@ export interface AppData {
   stays: Stay[];
   checkInRegistrations?: CheckInRegistration[];
   checkInTemplate?: CheckInTemplate;
+  guestGuideContent?: GuestGuideContent;
   cleaningSupplies?: CleaningSupply[];
   supplyTasks?: SupplyTask[];
   communicationTemplates?: CommunicationTemplate[];

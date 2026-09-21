@@ -4,10 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createHash } from "node:crypto";
-import { addCleaningSupply, addStay, addSupplyTask, adjustCleaningSupply, completeSupplyTask, createCheckInRegistration, markCheckInReported, markStayMessageSent, replaceAirbnbStays, saveCommunicationTemplates, submitCheckInRegistration, toggleStayChecklist, updateCheckInTemplate, updateLinenInventory, updateStayGuests, updateStayOperation, updateStayTaxExemption, updateTaxSettlement } from "@/data/repository";
+import { addCleaningSupply, addStay, addSupplyTask, adjustCleaningSupply, completeSupplyTask, createCheckInRegistration, markCheckInReported, markStayMessageSent, replaceAirbnbStays, saveCommunicationTemplates, submitCheckInRegistration, toggleStayChecklist, updateCheckInTemplate, updateGuestGuideContent, updateLinenInventory, updateStayGuests, updateStayOperation, updateStayTaxExemption, updateTaxSettlement } from "@/data/repository";
 import { parseAirbnbCalendar } from "@/data/airbnb";
 import { STOCK_STATES } from "@/domain/inventory";
-import type { CheckInGuest, CheckInTemplate, CommunicationTemplate, MessageTemplateId, StayChecklistItem } from "@/domain/types";
+import type { CheckInGuest, CheckInTemplate, CommunicationTemplate, GuestGuideContent, MessageTemplateId, StayChecklistItem } from "@/domain/types";
 
 function assertDashboardWriteAllowed() {
   if (process.env.VERCEL && process.env.ENABLE_PRODUCTION_APP !== "true") {
@@ -172,6 +172,16 @@ export async function saveCheckInTemplate(formData: FormData) {
   if (Object.values(template).some((value) => !value) || !purposes.length) throw new Error("Šablona musí obsahovat všechny texty a alespoň jeden účel cesty.");
   await updateCheckInTemplate({ ...template, purposes });
   revalidatePath("/cizinecka-policie/template"); revalidatePath("/check-in/[token]", "page");
+}
+
+export async function saveGuestGuide(formData: FormData) {
+  assertDashboardWriteAllowed();
+  const fields = ["title", "subtitle", "welcome", "arrival", "keys", "wifiName", "wifiPassword", "apartmentCare", "utilities", "recycling", "appliances", "pragueTips", "checkout", "help"] as const;
+  const content = Object.fromEntries(fields.map((field) => [field, String(formData.get(field) ?? "").trim()])) as unknown as GuestGuideContent;
+  if (Object.values(content).some((value) => !value)) throw new Error("Vyplň všechny části průvodce.");
+  await updateGuestGuideContent(content);
+  revalidatePath("/guest-info");
+  revalidatePath("/pruvodce");
 }
 
 export async function markReported(formData: FormData) {

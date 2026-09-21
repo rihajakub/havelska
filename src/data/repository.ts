@@ -4,11 +4,12 @@ import path from "node:path";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { createSeedData } from "./seed";
 import { readPostgresData, writePostgresData } from "./postgres";
-import type { AppData, CheckInGuest, CheckInRegistration, CheckInTemplate, CleaningSupply, CommunicationTemplate, InventoryItem, MessageTemplateId, Stay, StayChecklistItem, StockState, SupplyTask, TaxSettlement } from "@/domain/types";
+import type { AppData, CheckInGuest, CheckInRegistration, CheckInTemplate, CleaningSupply, CommunicationTemplate, GuestGuideContent, InventoryItem, MessageTemplateId, Stay, StayChecklistItem, StockState, SupplyTask, TaxSettlement } from "@/domain/types";
 import { stockTotal } from "@/domain/inventory";
 import { decryptCheckInData, encryptCheckInData } from "./check-in-crypto";
 import { defaultCheckInTemplate } from "./check-in-template";
 import { defaultCommunicationTemplates } from "./communication-templates";
+import { defaultGuestGuideContent } from "./guest-guide-template";
 
 const dataDir = path.join(process.cwd(), ".data");
 const dataFile = path.join(dataDir, "local.json");
@@ -49,6 +50,17 @@ export async function getCheckInTemplate() {
 export async function updateCheckInTemplate(template: CheckInTemplate) {
   const data = await readData();
   data.checkInTemplate = template;
+  await writeData(data);
+}
+
+export async function getGuestGuideContent() {
+  const data = await readData();
+  return { ...defaultGuestGuideContent, ...data.guestGuideContent };
+}
+
+export async function updateGuestGuideContent(content: GuestGuideContent) {
+  const data = await readData();
+  data.guestGuideContent = content;
   await writeData(data);
 }
 

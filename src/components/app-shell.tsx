@@ -12,6 +12,7 @@ const links = [
   { href: "/inventar", label: "Zásoby", Icon: BoxIcon },
   { href: "/komunikace", label: "Zprávy", Icon: HomeIcon },
   { href: "/poplatky", label: "Poplatky", Icon: BoxIcon },
+  { href: "/pruvodce", label: "Průvodce", Icon: HomeIcon },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
