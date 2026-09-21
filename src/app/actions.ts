@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createHash } from "node:crypto";
-import { addCleaningSupply, addStay, addSupplyTask, adjustCleaningSupply, completeSupplyTask, createCheckInRegistration, markCheckInReported, markStayMessageSent, replaceAirbnbStays, saveCommunicationTemplates, submitCheckInRegistration, toggleStayChecklist, updateCheckInTemplate, updateGuestGuideContent, updateLinenInventory, updateStayGuests, updateStayOperation, updateStayTaxExemption, updateTaxSettlement } from "@/data/repository";
+import { addCleaningSupply, addStay, addSupplyTask, adjustCleaningSupply, completeSupplyTask, createCheckInRegistration, markCheckInReported, markStayMessageSent, replaceAirbnbStays, revokeCheckInRegistration, saveCommunicationTemplates, submitCheckInRegistration, toggleStayChecklist, updateCheckInTemplate, updateGuestGuideContent, updateLinenInventory, updateStayGuests, updateStayOperation, updateStayTaxExemption, updateTaxSettlement } from "@/data/repository";
 import { parseAirbnbCalendar } from "@/data/airbnb";
 import { STOCK_STATES } from "@/domain/inventory";
 import type { CheckInGuest, CheckInTemplate, CommunicationTemplate, GuestGuideContent, MessageTemplateId, StayChecklistItem } from "@/domain/types";
@@ -120,6 +120,12 @@ export async function syncAirbnbCalendar() {
 export async function createCheckInLink(formData: FormData) {
   await createCheckInRegistration(String(formData.get("stayId") ?? ""));
   revalidatePath("/cizinecka-policie");
+}
+
+export async function revokeCheckInLink(formData: FormData) {
+  await revokeCheckInRegistration(String(formData.get("registrationId") ?? ""));
+  revalidatePath("/cizinecka-policie");
+  revalidatePath("/pobyty/[id]", "page");
 }
 
 export async function updateGuests(formData: FormData) {

@@ -15,6 +15,10 @@ function PlaceCard({ href, name, detail, logo, logoAlt, mark }: { href: string; 
   </a>;
 }
 
+function MapPin({ href, label, short, x, y, type }: { href: string; label: string; short: string; x: string; y: string; type: "food" | "shop" }) {
+  return <a className={`map-pin ${type}`} href={href} target="_blank" rel="noreferrer" style={{ left: x, top: y }} aria-label={`Open ${label} in Maps`}><span>{short}</span><b>{label}</b></a>;
+}
+
 export default async function GuestInfoPage() {
   const guide = await getGuestGuideContent();
   return <main className="guest-guide guest-guide-vivid">
@@ -52,7 +56,8 @@ export default async function GuestInfoPage() {
       </div></section>
 
       <section id="prague" className="guide-feature guide-feature-prague"><div className="guide-feature-icon">♥</div><div><span className="landing-kicker">04 · Out & about</span><h2>A few Prague favourites</h2>{toParagraphs(guide.pragueTips)}
-        <div className="prague-photo-pair"><figure><Image src="/images/guide/prague-day.jpg" alt="View across Prague from a hilltop" width={1920} height={1440}/><figcaption>A bright Prague afternoon</figcaption></figure><figure><Image src="/images/guide/prague-sunset.jpg" alt="Sunset over Prague and Prague Castle" width={1920} height={1440}/><figcaption>Sunset near Prague Castle</figcaption></figure></div>
+        <div className="prague-photo-pair prague-photo-single"><figure><Image src="/images/guide/prague-day.jpg" alt="View across Prague from a hilltop" width={1920} height={1440}/><figcaption>A bright Prague afternoon</figcaption></figure></div>
+        <section className="nearby-map" aria-labelledby="nearby-map-title"><div><span className="landing-kicker">Get your bearings</span><h3 id="nearby-map-title">Recommended places nearby</h3><p>A quick orientation map. Tap any pin for its exact location and walking route.</p></div><div className="nearby-map-canvas" aria-label="Schematic map of recommended places"><span className="map-river"/><span className="map-street street-one"/><span className="map-street street-two"/><span className="map-street street-three"/><MapPin href="https://maps.app.goo.gl/VFqsydwB8UWBYAjE6" label="Havelská Koruna" short="HK" x="64%" y="27%" type="food"/><MapPin href="https://goo.gl/maps/hm2fr5MRwjGmrfj26" label="Café Louvre" short="L" x="40%" y="49%" type="food"/><MapPin href="https://goo.gl/maps/NYR3HbTxazzF22Xu5" label="Café Slavia" short="S" x="15%" y="64%" type="food"/><MapPin href="https://goo.gl/maps/LZeB18KphsvNaSKS9" label="Krusta" short="K" x="58%" y="78%" type="food"/><MapPin href="https://goo.gl/maps/LNshEWKgYsoY6Jcj9" label="Au Gourmand" short="AG" x="73%" y="14%" type="food"/><MapPin href="https://maps.app.goo.gl/3Puq6eo9sGxnXUjJ6" label="Pivovar Národní" short="P" x="25%" y="57%" type="food"/><MapPin href="https://maps.app.goo.gl/pvWZkhmHzmu3LNYR9" label="Pilsnerka Národní" short="PN" x="47%" y="57%" type="food"/><MapPin href="https://goo.gl/maps/RwqKW5QApKjnHzbf8" label="Lidl" short="Li" x="53%" y="90%" type="shop"/><MapPin href="https://maps.app.goo.gl/1YAYpHqzaQFsdt358" label="Tesco" short="T" x="37%" y="82%" type="shop"/><MapPin href="https://goo.gl/maps/xb7cZLZuZjEQr9oJ6" label="Albert" short="A" x="78%" y="50%" type="shop"/><MapPin href="https://goo.gl/maps/ffV91LZz43ji1duh6" label="BILLA" short="B" x="84%" y="76%" type="shop"/><MapPin href="https://goo.gl/maps/YYG6b1mMbKYt5jrf8" label="Delmart" short="D" x="88%" y="28%" type="shop"/></div><div className="map-legend"><span><i className="food"/>Food & coffee</span><span><i className="shop"/>Groceries</span></div></section>
         <div className="place-group"><h3>Food, coffee & Czech classics</h3><div className="place-list">
           <PlaceCard href="https://maps.app.goo.gl/VFqsydwB8UWBYAjE6" name="Havelská Koruna" detail="Czech classics nearby" mark="HK" />
           <PlaceCard href="https://goo.gl/maps/hm2fr5MRwjGmrfj26" name="Café Louvre" detail="Breakfast & coffee" logo="/images/places/cafe-louvre.jpeg" />

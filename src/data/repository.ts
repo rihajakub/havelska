@@ -216,6 +216,15 @@ export async function createCheckInRegistration(stayId: string) {
   return registration;
 }
 
+export async function revokeCheckInRegistration(id: string) {
+  const data = await readData();
+  const registration = (data.checkInRegistrations ?? []).find((item) => item.id === id);
+  if (!registration) throw new Error("Check-in odkaz nebyl nalezen.");
+  if (registration.submittedAt) throw new Error("Vyplněný formulář nelze zneplatnit, aby zůstala zachovaná domovní kniha.");
+  data.checkInRegistrations = (data.checkInRegistrations ?? []).filter((item) => item.id !== id);
+  await writeData(data);
+}
+
 export async function getCheckInRegistrationByToken(token: string) {
   const data = await readData();
   const registration = (data.checkInRegistrations ?? []).find((item) => item.tokenHash === tokenHash(token));
