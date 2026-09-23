@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowIcon, CalendarIcon } from "@/components/icons";
+import { ArrowIcon } from "@/components/icons";
 import { getAppData } from "@/data/repository";
 import type { Stay } from "@/domain/types";
 
@@ -29,7 +29,6 @@ export default async function Dashboard() {
   return <>
     <section className="dashboard-heading">
       <div><span className="eyebrow">Provoz apartmánu</span><h1>Co nás čeká</h1><p>Kalendář, údaje hostů a provozní úkoly na jednom místě.</p></div>
-      <Link className="button" href="/pobyty/novy"><CalendarIcon/>Přidat pobyt</Link>
     </section>
     <section className="dashboard-calendar" aria-labelledby="dashboard-calendar-title">
       <div className="section-heading"><div><span className="eyebrow">Nejbližší 4 týdny</span><h2 id="dashboard-calendar-title">Kalendář pobytů</h2></div><Link className="text-link" href="/pobyty">Celý kalendář <ArrowIcon/></Link></div>

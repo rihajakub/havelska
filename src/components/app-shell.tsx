@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { BoxIcon, CalendarIcon, HomeIcon } from "./icons";
 import { logout } from "@/app/actions";
@@ -9,7 +10,6 @@ const links = [
   { href: "/dashboard", label: "Přehled", Icon: HomeIcon },
   { href: "/pobyty", label: "Pobyty", Icon: CalendarIcon },
   { href: "/cizinecka-policie", label: "Hlášení", Icon: CalendarIcon },
-  { href: "/inventar", label: "Zásoby", Icon: BoxIcon },
   { href: "/poplatky", label: "Poplatky", Icon: BoxIcon },
   { href: "/pruvodce", label: "Průvodce", Icon: HomeIcon },
 ];
@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="app-shell">
       <header className="topbar">
         <Link className="brand" href="/dashboard">
-          <span className="brand-mark">H</span>
+          <span className="brand-logo"><Image src="/images/prague-castle-icon.png" alt="Pražský hrad" width={44} height={44} priority/></span>
           <span><strong>Havelská</strong><small>správa apartmánu</small></span>
         </Link>
         <nav className="topbar-nav" aria-label="Hlavní navigace">
