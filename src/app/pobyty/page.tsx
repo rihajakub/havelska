@@ -19,7 +19,7 @@ const departuresOn = (stays: Stay[], value: Date) => stays.filter((stay) => stay
 const monthKey = (value: Date) => iso(value).slice(0, 7);
 const parseMonth = (value: string | undefined, fallback: Date) => /^\d{4}-(0[1-9]|1[0-2])$/.test(value ?? "") ? fromIso(`${value}-01`) : new Date(fallback.getFullYear(), fallback.getMonth(), 1, 12);
 
-type StaysPageProps = { searchParams: Promise<{ month?: string; synced?: string; ignored?: string; syncedAt?: string }> };
+type StaysPageProps = { searchParams: Promise<{ month?: string; history?: string; synced?: string; ignored?: string; syncedAt?: string }> };
 const positiveInteger = (value: string | undefined) => /^\d+$/.test(value ?? "") ? Number(value) : undefined;
 
 export default async function StaysPage({ searchParams }: StaysPageProps) {
@@ -30,12 +30,14 @@ export default async function StaysPage({ searchParams }: StaysPageProps) {
   const stays = [...data.stays].filter((stay) => stay.status !== "cancelled").sort((a, b) => a.checkIn.localeCompare(b.checkIn));
   const currentStays = stays.filter((stay) => stay.checkOut >= todayIso);
   const archivedStays = stays.filter((stay) => stay.checkOut < todayIso).sort((a, b) => b.checkOut.localeCompare(a.checkOut));
-  const first = currentStays[0];
-  const displayMonth = parseMonth(params.month, first ? fromIso(first.checkIn) : today);
+  const displayMonth = parseMonth(params.month, today);
   const calendarStart = monday(displayMonth);
   const lastDay = new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 0, 12);
   const calendarEnd = plus(monday(lastDay), 6);
   const weeks = Array.from({ length: Math.round((calendarEnd.getTime() - calendarStart.getTime()) / (7 * DAY)) + 1 }, (_, index) => plus(calendarStart, index * 7));
+  const isCurrentMonth = monthKey(displayMonth) === monthKey(today);
+  const previousWeeks = isCurrentMonth ? weeks.filter((weekStart) => weekStart < monday(today)) : [];
+  const visibleWeeks = isCurrentMonth && params.history !== "1" ? weeks.filter((weekStart) => weekStart >= monday(today)) : weeks;
   const previousMonth = new Date(displayMonth.getFullYear(), displayMonth.getMonth() - 1, 1, 12);
   const nextMonth = new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 1, 12);
 
@@ -48,7 +50,8 @@ export default async function StaysPage({ searchParams }: StaysPageProps) {
     <section className="page-heading split"><div><span className="eyebrow">Plán provozu</span><h1>Pobyty</h1><p>Každý pobyt má vlastní detail s úkoly, klíči, zprávami a hlášením hostů.</p></div><div className="header-actions"><form action={syncAirbnbCalendar}><button className="button secondary" type="submit">Synchronizovat Airbnb</button></form><Link className="button secondary" href="/export">Export CSV</Link><Link className="button" href="/pobyty/novy"><PlusIcon/>Přidat</Link></div></section>
     {synced !== undefined && <section className="notice success sync-notice" role="status"><strong>Airbnb je synchronizované.</strong><span>Načteno {synced} {synced === 1 ? "potvrzená rezervace" : synced < 5 ? "potvrzené rezervace" : "potvrzených rezervací"}; {ignored} {ignored === 1 ? "blokace nebo nejasná událost byla vynechána" : ignored < 5 ? "blokace nebo nejasné události byly vynechány" : "blokací nebo nejasných událostí bylo vynecháno"}.{syncTime ? ` Aktualizováno ${syncTime}.` : ""}</span></section>}
     <section className="calendar-section month-calendar-section"><div className="month-calendar-title"><div><span className="eyebrow">Přehled rezervací</span><h2>{monthLabel.format(displayMonth)}</h2></div><div className="month-navigation"><Link href={`/pobyty?month=${monthKey(previousMonth)}`}>← Předchozí</Link><Link href={`/pobyty?month=${monthKey(today)}`}>Dnes</Link><Link href={`/pobyty?month=${monthKey(nextMonth)}`}>Další →</Link></div></div><p className="calendar-explainer">Pruh označuje noclehy. Den odjezdu je vždy samostatně jako „odjezd ráno“. Uplynulé dny jsou šedé, dnešek je orámovaný.</p>
-      <div className="month-calendar" role="grid" aria-label={`Kalendář pobytů pro ${monthLabel.format(displayMonth)}`}><div className="month-weekdays">{Array.from({ length: 7 }, (_, index) => <span key={index}>{weekday.format(plus(calendarStart, index))}</span>)}</div>{weeks.map((weekStart) => <MonthWeek key={iso(weekStart)} weekStart={weekStart} displayMonth={displayMonth} stays={stays} today={today} />)}</div>
+      {previousWeeks.length > 0 && <div className="calendar-history-toggle">{params.history === "1" ? <Link href={`/pobyty?month=${monthKey(displayMonth)}`}>↑ Skrýt předchozí týdny</Link> : <Link href={`/pobyty?month=${monthKey(displayMonth)}&history=1`}>↑ Zobrazit předchozí týdny ({previousWeeks.length})</Link>}</div>}
+      <div className="month-calendar" role="grid" aria-label={`Kalendář pobytů pro ${monthLabel.format(displayMonth)}`}><div className="month-weekdays">{Array.from({ length: 7 }, (_, index) => <span key={index}>{weekday.format(plus(calendarStart, index))}</span>)}</div>{visibleWeeks.map((weekStart) => <MonthWeek key={iso(weekStart)} weekStart={weekStart} displayMonth={displayMonth} stays={stays} today={today} />)}</div>
       <div className="mobile-calendar-agenda">{Array.from({ length: 56 }, (_, index) => { const day = plus(calendarStart, index); const matches = onDay(stays, day); const departures = departuresOn(stays, day); const past = iso(day) < todayIso; return <div className={`agenda-day${matches.length ? " has-stay" : ""}${departures.length ? " has-departure" : ""}${past ? " past" : ""}${iso(day) === todayIso ? " today" : ""}`} key={`agenda-${iso(day)}`}><time>{weekday.format(day)} · {short.format(day)}</time>{matches.map((stay) => <Link href={`/pobyty/${stay.id}`} key={stay.id}>{stay.source === "airbnb" ? "Airbnb" : "Pobyt"} · {stay.guests} hosté</Link>)}{departures.map((stay) => <Link className="agenda-departure" href={`/pobyty/${stay.id}`} key={`${stay.id}-departure`}>Odjezd ráno · {stay.guests} hosté</Link>)}{!matches.length && !departures.length && <span>Volno</span>}</div>; })}</div>
     </section>
     <section className="section-heading stays-title"><div><span className="eyebrow">Detailní přehled</span><h2>Aktuální a budoucí pobyty</h2></div></section>
