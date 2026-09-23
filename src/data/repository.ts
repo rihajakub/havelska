@@ -235,11 +235,12 @@ export async function getCheckInRegistrationByToken(token: string) {
   return { registration, stay, completedGuestCount: guests.length, expectedGuestCount: registration.expectedGuestCount ?? Math.min(4, Math.max(1, stay.guests)) };
 }
 
-export async function submitCheckInRegistration(token: string, guests: CheckInGuest[], submittedCheckIn: string, submittedCheckOut: string, mode: "group" | "individual") {
+export async function submitCheckInRegistration(token: string, guests: CheckInGuest[], submittedCheckIn: string, submittedCheckOut: string, mode: "group" | "individual", documentConfirmed: boolean) {
   const data = await readData();
   const registration = (data.checkInRegistrations ?? []).find((item) => item.tokenHash === tokenHash(token));
   if (!registration || new Date(registration.expiresAt) < new Date()) throw new Error("This check-in link is no longer valid.");
   if (!submittedCheckIn || !submittedCheckOut || submittedCheckOut <= submittedCheckIn) throw new Error("Departure date must be after arrival date.");
+  if (!documentConfirmed) throw new Error("Please confirm that the document details match a valid identity document.");
   const stay = data.stays.find((item) => item.id === registration.stayId);
   if (!stay) throw new Error("This stay no longer exists.");
   const storedExpectedGuestCount = registration.expectedGuestCount ?? Math.min(4, Math.max(1, stay.guests));
@@ -251,6 +252,7 @@ export async function submitCheckInRegistration(token: string, guests: CheckInGu
   registration.submittedCheckIn = submittedCheckIn;
   registration.submittedCheckOut = submittedCheckOut;
   registration.expectedGuestCount = expectedGuestCount;
+  registration.documentConfirmedAt = new Date().toISOString();
   registration.submittedAt = mode === "group" || nextGuests.length >= expectedGuestCount ? new Date().toISOString() : undefined;
   await writeData(data);
   return { completedGuestCount: nextGuests.length, expectedGuestCount, complete: Boolean(registration.submittedAt) };

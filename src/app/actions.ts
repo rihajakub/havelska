@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { createHash } from "node:crypto";
 import { addCleaningSupply, addStay, addSupplyTask, adjustCleaningSupply, completeSupplyTask, createCheckInRegistration, markCheckInReported, markStayMessageSent, replaceAirbnbStays, revokeCheckInRegistration, saveCommunicationTemplates, submitCheckInRegistration, toggleStayChecklist, updateCheckInTemplate, updateGuestGuideContent, updateLinenInventory, updateStayGuests, updateStayOperation, updateStayTaxExemption, updateTaxSettlement } from "@/data/repository";
 import { parseAirbnbCalendarResult } from "@/data/airbnb";
+import { normalizeTravelDocumentNumber, travelDocumentNumberError } from "@/data/document-validation";
+import { passwordSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/session";
 import { STOCK_STATES } from "@/domain/inventory";
 import type { CheckInGuest, CheckInTemplate, CommunicationTemplate, GuestGuideContent, MessageTemplateId, StayChecklistItem } from "@/domain/types";
 
@@ -14,8 +15,6 @@ function assertDashboardWriteAllowed() {
     throw new Error("Produkční provoz není povolen.");
   }
 }
-
-const SESSION_COOKIE = "havelska_session";
 
 export async function login(formData: FormData) {
   const password = String(formData.get("password") ?? "");
@@ -27,15 +26,8 @@ export async function login(formData: FormData) {
     redirect(`/login?error=1&next=${encodeURIComponent(next)}`);
   }
 
-  const token = createHash("sha256").update(`havelska-session:${expected}`).digest("base64url");
   const store = await cookies();
-  store.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: Boolean(process.env.VERCEL),
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-  });
+  store.set(SESSION_COOKIE, await passwordSessionToken(expected), sessionCookieOptions);
   redirect(next);
 }
 
@@ -174,7 +166,7 @@ export async function markTaxSettlement(formData: FormData) {
 }
 
 export async function saveCheckInTemplate(formData: FormData) {
-  const fields = ["title", "introduction", "stayLabel", "documentNotice", "arrivalLabel", "departureLabel", "guestLabel", "firstNameLabel", "lastNameLabel", "birthDateLabel", "nationalityLabel", "travelDocumentLabel", "visaLabel", "addressCountryLabel", "addressLabel", "addressHelp", "purposeLabel", "purposeOtherLabel", "addGuestLabel", "removeGuestLabel", "submitLabel"] as const;
+  const fields = ["title", "introduction", "stayLabel", "documentNotice", "arrivalLabel", "departureLabel", "guestLabel", "firstNameLabel", "lastNameLabel", "birthDateLabel", "nationalityLabel", "travelDocumentTypeLabel", "travelDocumentLabel", "visaLabel", "addressCountryLabel", "addressLabel", "addressHelp", "purposeLabel", "purposeOtherLabel", "addGuestLabel", "removeGuestLabel", "submitLabel"] as const;
   const template = Object.fromEntries(fields.map((field) => [field, String(formData.get(field) ?? "").trim()])) as Omit<CheckInTemplate, "purposes">;
   const purposes = String(formData.get("purposes") ?? "").split("\n").map((value) => value.trim()).filter(Boolean);
   if (Object.values(template).some((value) => !value) || !purposes.length) throw new Error("Šablona musí obsahovat všechny texty a alespoň jeden účel cesty.");
@@ -211,11 +203,13 @@ export async function submitCheckInForm(formData: FormData) {
   const mode = String(formData.get("completionMode") ?? "group");
   if (!token || !Number.isInteger(count) || count < 1 || count > 4) throw new Error("The number of guests is invalid.");
   if (mode !== "group" && mode !== "individual") throw new Error("The submission mode is invalid.");
+  if (formData.get("documentConfirmed") !== "yes") throw new Error("Please confirm that the document details match a valid identity document.");
   const guests = Array.from({ length: count }, (_, index): CheckInGuest => ({
     firstName: guestField(formData, index, "firstName"), lastName: guestField(formData, index, "lastName"),
     birthDate: guestField(formData, index, "birthDate"), nationality: guestField(formData, index, "nationality"),
-    travelDocumentNumber: guestField(formData, index, "travelDocumentNumber"), visaOrResidence: guestField(formData, index, "visaOrResidence"),
+    travelDocumentType: guestField(formData, index, "travelDocumentType"), travelDocumentNumber: normalizeTravelDocumentNumber(guestField(formData, index, "travelDocumentNumber")), visaOrResidence: guestField(formData, index, "visaOrResidence"),
     foreignAddress: guestField(formData, index, "foreignAddress"), purposeOfStay: guestField(formData, index, "purposeOfStay"),
   }));
-  return submitCheckInRegistration(token, guests, submittedCheckIn, submittedCheckOut, mode);
+  for (const guest of guests) { const error = travelDocumentNumberError(guest.travelDocumentNumber); if (error) throw new Error(error); }
+  return submitCheckInRegistration(token, guests, submittedCheckIn, submittedCheckOut, mode, true);
 }

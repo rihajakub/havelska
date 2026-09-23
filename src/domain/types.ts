@@ -61,6 +61,7 @@ export interface CheckInGuest {
   lastName: string;
   birthDate: string;
   nationality: string;
+  travelDocumentType: string;
   travelDocumentNumber: string;
   visaOrResidence: string;
   foreignAddress: string;
@@ -79,6 +80,7 @@ export interface CheckInRegistration {
   submittedAt?: string;
   submittedCheckIn?: string;
   submittedCheckOut?: string;
+  documentConfirmedAt?: string;
   reportedAt?: string;
 }
 
@@ -94,6 +96,7 @@ export interface CheckInTemplate {
   lastNameLabel: string;
   birthDateLabel: string;
   nationalityLabel: string;
+  travelDocumentTypeLabel: string;
   travelDocumentLabel: string;
   visaLabel: string;
   addressCountryLabel: string;

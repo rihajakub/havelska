@@ -1,22 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
-
-const SESSION_COOKIE = "havelska_session";
-
-async function sessionToken(password: string) {
-  const data = new TextEncoder().encode(`havelska-session:${password}`);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  const encoded = btoa(String.fromCharCode(...new Uint8Array(digest)));
-  return encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
+import { googleSessionToken, passwordSessionToken, SESSION_COOKIE } from "@/lib/session";
 
 export async function proxy(request: NextRequest) {
   if (!process.env.VERCEL || process.env.ENABLE_PRODUCTION_APP !== "true") return NextResponse.next();
   const { pathname } = request.nextUrl;
-  if (pathname === "/" || pathname === "/login" || pathname === "/robots.txt" || pathname.startsWith("/guest-info") || pathname.startsWith("/check-in/")) return NextResponse.next();
+  if (pathname === "/" || pathname === "/login" || pathname === "/robots.txt" || pathname.startsWith("/guest-info") || pathname.startsWith("/check-in/") || pathname.startsWith("/api/auth/google")) return NextResponse.next();
   const password = process.env.APP_PASSWORD;
-  if (!password) return new NextResponse("Produkční heslo není nastavené.", { status: 503 });
+  const googleSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+  if (!password && !googleSecret) return new NextResponse("Přihlášení není nastavené.", { status: 503 });
   const token = request.cookies.get(SESSION_COOKIE)?.value;
-  if (token === await sessionToken(password)) return NextResponse.next();
+  const acceptedTokens = await Promise.all([password ? passwordSessionToken(password) : undefined, googleSecret ? googleSessionToken(googleSecret) : undefined]);
+  if (acceptedTokens.includes(token)) return NextResponse.next();
   const login = request.nextUrl.clone();
   login.pathname = "/login";
   login.search = "";

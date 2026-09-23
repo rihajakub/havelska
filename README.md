@@ -24,6 +24,15 @@ pro kontrolu je podle Policie ČR nutná také listinná, chronologicky vedená
 domovní kniha / podepsané přihlašovací listy. Ubytování cizince se oznamuje do
 3 pracovních dnů a při podnikatelském ubytování prostřednictvím UbyPortu.
 
+## Google login pro hostitele
+
+Dashboard podporuje přihlášení přes Google výhradně pro `rihaja@gmail.com`.
+V Google Cloud vytvoř OAuth klienta typu **Web application** a mezi povolené
+redirect URI přidej přesně `https://www.havelska.cz/api/auth/google/callback`.
+Ve Vercelu nastav `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` a
+`GOOGLE_OAUTH_REDIRECT_URI` se stejnou adresou. Google session je platná 30 dní;
+heslo zůstává jako nouzová možnost přihlášení.
+
 ## Lokální spuštění
 
 Požadován je Node.js 20.9 nebo novější.

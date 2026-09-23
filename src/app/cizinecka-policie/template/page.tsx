@@ -5,7 +5,7 @@ import { getCheckInTemplate } from "@/data/repository";
 const fields = [
   ["title", "Page title"], ["introduction", "Introductory text"], ["stayLabel", "Stay label"], ["documentNotice", "Document notice"],
   ["arrivalLabel", "Arrival date"], ["departureLabel", "Departure date"], ["guestLabel", "Guest label"],
-  ["firstNameLabel", "First name"], ["lastNameLabel", "Last name"], ["birthDateLabel", "Date of birth"], ["nationalityLabel", "Nationality"], ["travelDocumentLabel", "Travel document number"], ["visaLabel", "Visa / residence permit"], ["addressCountryLabel", "Address country"], ["addressLabel", "Address field"], ["addressHelp", "Address help text"], ["purposeLabel", "Purpose label"], ["purposeOtherLabel", "Other purpose"], ["addGuestLabel", "Add guest button"], ["removeGuestLabel", "Remove guest button"], ["submitLabel", "Submit button"],
+  ["firstNameLabel", "First name"], ["lastNameLabel", "Last name"], ["birthDateLabel", "Date of birth"], ["nationalityLabel", "Nationality"], ["travelDocumentTypeLabel", "Travel document type"], ["travelDocumentLabel", "Travel document number"], ["visaLabel", "Visa / residence permit"], ["addressCountryLabel", "Address country"], ["addressLabel", "Address field"], ["addressHelp", "Address help text"], ["purposeLabel", "Purpose label"], ["purposeOtherLabel", "Other purpose"], ["addGuestLabel", "Add guest button"], ["removeGuestLabel", "Remove guest button"], ["submitLabel", "Submit button"],
 ] as const;
 
 export default async function CheckInTemplatePage() {

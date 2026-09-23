@@ -4,9 +4,9 @@
   --line: #d9e2f0;
   --paper: #f4f7fd;
   --card: #ffffff;
-  --forest: #1558c8;
-  --forest-2: #214a9d;
-  --mint: #dfebff;
+  --forest: #315b92;
+  --forest-2: #294a76;
+  --mint: #e1eaf6;
   --sand: #fff0d8;
   --amber: #ae650b;
   --shadow: 0 16px 38px rgba(33, 72, 140, .10);
@@ -188,16 +188,24 @@ a.status-card:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(
 @media (max-width: 719px) { .prague-photo-single figure { min-height: 210px; }.nearby-map-canvas { height: 310px; }.map-pin { width: 29px; height: 29px; }.map-pin span { font-size: 9px; } }
 
 /* Blue operational direction: clear hierarchy with a little more energy. */
-.app-shell { background: radial-gradient(circle at 7% 0%, rgba(81, 143, 255, .15), transparent 30rem), radial-gradient(circle at 92% 12%, rgba(149, 195, 255, .18), transparent 26rem), linear-gradient(180deg, #f7f9ff 0, #f0f5ff 42rem, #fbfcff 100%); }
+.app-shell { background: radial-gradient(circle at 7% 0%, rgba(91, 122, 165, .13), transparent 30rem), radial-gradient(circle at 92% 12%, rgba(154, 176, 207, .16), transparent 26rem), linear-gradient(180deg, #f8f9fc 0, #f1f4f9 42rem, #fbfcfe 100%); }
 .topbar { border-bottom-color: rgba(209, 222, 243, .94); background: rgba(250, 252, 255, .9); }
 .brand strong { color: #152847; }.brand small { color: #6d7c95; }
-.dev-chip { border-color: #c6d8f7; color: #2453a7; background: #e8f0ff; }
-.topbar-nav a { color: #63718a; }.topbar-nav a:hover, .topbar-nav a.active { color: #124cae; background: #e1ebff; box-shadow: inset 0 0 0 1px #d1e0fa; }
-.button { background: linear-gradient(135deg, #1d68dd, #124ab2); box-shadow: 0 7px 14px rgba(24, 85, 193, .18); transition: transform .16s ease, box-shadow .16s ease, filter .16s ease; }
-.button:hover { transform: translateY(-1px); box-shadow: 0 10px 19px rgba(24, 85, 193, .25); filter: saturate(1.06); }
-.button.secondary { color: #24416f; background: #eaf1ff; box-shadow: none; }.button.secondary:hover { background: #dfeaff; box-shadow: none; }
-.status-card.good { background: linear-gradient(135deg, #164fae, #2374e0); border-color: #164fae; }.status-card.good .eyebrow, .status-card.good p { color: #d9e8ff; }
-.date-tile { background: linear-gradient(150deg, #1859c5, #0d3e91); box-shadow: 0 8px 15px rgba(26, 86, 194, .18); }
+.dev-chip { border-color: #cad7e8; color: #38577d; background: #e9eff7; }
+.topbar-nav a { color: #63718a; }.topbar-nav a:hover, .topbar-nav a.active { color: #2b4f7d; background: #e3ebf6; box-shadow: inset 0 0 0 1px #d2deed; }
+.button { background: linear-gradient(135deg, #426b9f, #294c7b); box-shadow: 0 7px 14px rgba(42, 75, 122, .18); transition: transform .16s ease, box-shadow .16s ease, filter .16s ease; }
+.button:hover { transform: translateY(-1px); box-shadow: 0 10px 19px rgba(42, 75, 122, .25); filter: saturate(1.03); }
+.button.secondary { color: #314d70; background: #e9eef5; box-shadow: none; }.button.secondary:hover { background: #dfe7f1; box-shadow: none; }
+.status-card.good { background: linear-gradient(135deg, #315b92, #4c719f); border-color: #315b92; }.status-card.good .eyebrow, .status-card.good p { color: #e0e9f5; }
+.date-tile { background: linear-gradient(150deg, #3c6598, #29486f); box-shadow: 0 8px 15px rgba(42, 75, 122, .18); }
 .dashboard-calendar { border-color: #d5e1f3; box-shadow: 0 18px 38px rgba(32, 72, 140, .08); }
-.dashboard-checkin { border-color: #c8dcfb; background: linear-gradient(112deg, #eef5ff, #f9fbff); }.checkin-stat { color: #1454bc; background: #f8fbff; }
-.eyebrow, .text-link { color: #2456aa; }
+.dashboard-checkin { border-color: #cad9eb; background: linear-gradient(112deg, #eef3f9, #fafcff); }.checkin-stat { color: #345c8e; background: #f8fbff; }
+.eyebrow, .text-link { color: #345b8c; }
+
+/* The guest-facing form shares the calmer blue palette of the dashboard. */
+.public-checkin-shell::before { background: radial-gradient(circle at 10% 8%, rgba(102, 139, 189, .18), transparent 31rem), radial-gradient(circle at 92% 20%, rgba(53, 86, 135, .16), transparent 30rem), linear-gradient(135deg, #f7f9fd 0%, #f3f6fb 48%, #e9eef7 100%); }
+.public-checkin h1 { color: #1d3558; }.property-header { background: #19375f; box-shadow: 0 22px 48px rgba(31, 54, 91, .19); }.property-header::after { background: linear-gradient(90deg, rgba(17, 42, 76, .78), rgba(26, 55, 96, .2) 64%, rgba(17, 42, 76, .12)); }.property-title .eyebrow { color: #ccdcf4; }.property-subtitle { color: #e1eaf7; }
+.checkin-form { border-color: rgba(255,255,255,.92); background: rgba(253,254,255,.94); box-shadow: 0 24px 54px rgba(39, 63, 102, .14); }.checkin-notice { border-color: #c9d8ef; border-left-color: #426b9f; color: #345174; background: #edf3fc; }.checkin-notice strong { color: #274d7e; }.checkin-steps li { border-color: #d8e2f0; color: #50627b; background: #f3f6fb; }.checkin-steps li::before { background: #426b9f; box-shadow: 0 3px 8px rgba(50, 82, 130, .22); }.checkin-steps strong { color: #203b62; }.stay-dates { border-color: #d5e0ef; background: #f6f9fd; }.guest-fields { border-color: #dae3f0; background: #fff; box-shadow: 0 7px 18px rgba(39, 65, 102, .04); }.guest-fields legend { color: #2f5689; }.guest-fields label { color: #536681; }.guest-fields input, .guest-fields select { border-color: #c9d6e7; }.guest-fields input:focus, .guest-fields select:focus, .stay-dates input:focus { border-color: #547ba9; box-shadow: 0 0 0 4px rgba(84, 123, 169, .14); background: #fbfdff; }.address-help, .document-help { color: #71819a; font-size: 11px; line-height: 1.35; }.guest-add { color: #315b92 !important; border-color: #86a4cb !important; background: #edf3fc !important; }.checkin-submit { background: linear-gradient(135deg, #426b9f, #294c7b) !important; box-shadow: 0 12px 22px rgba(48, 80, 128, .25) !important; }.checkin-submit:hover { box-shadow: 0 15px 27px rgba(48, 80, 128, .33) !important; }
+.checkin-mode button { border-color: #d4dfed; color: #52667e; background: #f4f7fb; }.checkin-mode button strong { color: #27476f; }.checkin-mode button.active { border-color: #6387b5; color: #294d78; background: #e9f0fa; box-shadow: 0 0 0 3px rgba(78, 115, 163, .12); }.checkin-thanks { border-color: #cad9ed; color: #4c607a; background: #f4f8fd; box-shadow: 0 20px 45px rgba(43, 66, 104, .12); }.checkin-thanks h2 { color: #25456f; }
+.document-declaration { display: flex !important; gap: 10px !important; align-items: flex-start; padding: 14px 15px; border: 1px solid #d3deed; border-radius: 13px; color: #405875 !important; background: #f5f8fc; font-size: 13px !important; line-height: 1.45; }.document-declaration input { width: 18px !important; min-width: 18px; min-height: 18px !important; margin: 1px 0 0; accent-color: #426b9f; }.document-declaration.field-error { border-color: #c65d66; background: #fff6f6; }
+.login-page { background: radial-gradient(circle at 8% 12%, #e0e9f7 0, transparent 31rem), radial-gradient(circle at 92% 88%, #dce6f4 0, transparent 30rem), #f6f8fc; }.google-login { width: 100%; margin-top: 4px; background: #fff; border: 1px solid #cad8eb; color: #29476f; box-shadow: 0 6px 16px rgba(39, 68, 112, .08); }.google-login:hover { color: #29476f; background: #f8fbff; }.google-login span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: white; background: conic-gradient(from -45deg, #4285f4 0 25%, #34a853 0 50%, #fbbc05 0 75%, #ea4335 0); font-size: 13px; font-weight: 900; }.password-login { margin-top: 3px; color: #61718a; font-size: 12px; }.password-login summary { cursor: pointer; font-weight: 750; }.password-login .login-form { margin-top: 12px; }
