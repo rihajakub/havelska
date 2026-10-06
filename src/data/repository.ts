@@ -13,6 +13,11 @@ import { defaultGuestGuideContent } from "./guest-guide-template";
 
 const dataDir = path.join(process.cwd(), ".data");
 const dataFile = path.join(dataDir, "local.json");
+const pragueTodayIso = () => {
+  const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Prague", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts();
+  const value = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? "";
+  return `${value("year")}-${value("month")}-${value("day")}`;
+};
 
 async function readData(): Promise<AppData> {
   if (process.env.DATABASE_URL) return readPostgresData(process.env.DATABASE_URL);
@@ -140,7 +145,12 @@ export async function replaceAirbnbStays(stays: Stay[]) {
     const current = currentById.get(stay.id);
     return current?.guestCountManuallySet ? { ...stay, guests: current.guests, preparationGuests: current.preparationGuests, guestCountManuallySet: true, note: current.note } : stay;
   });
-  data.stays = [...data.stays.filter((stay) => stay.source !== "airbnb"), ...merged].sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+  // Airbnb's iCal only exposes a rolling window. Keep past stays once they have
+  // finished, otherwise their check-in and UbyPort reporting history vanishes on
+  // the next sync. Reservations that disappear before checkout still drop out.
+  const incomingIds = new Set(stays.map((stay) => stay.id));
+  const retainedHistory = data.stays.filter((stay) => stay.source === "airbnb" && stay.checkOut < pragueTodayIso() && !incomingIds.has(stay.id));
+  data.stays = [...data.stays.filter((stay) => stay.source !== "airbnb"), ...retainedHistory, ...merged].sort((a, b) => a.checkIn.localeCompare(b.checkIn));
   await writeData(data);
 }
 

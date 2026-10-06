@@ -107,7 +107,7 @@ export async function syncAirbnbCalendar() {
   if (!response.ok) throw new Error("Airbnb iCal vrátil neplatnou odpověď.");
   const result = parseAirbnbCalendarResult(await response.text());
   await replaceAirbnbStays(result.stays);
-  revalidatePath("/dashboard"); revalidatePath("/pobyty");
+  revalidatePath("/dashboard"); revalidatePath("/pobyty"); revalidatePath("/cizinecka-policie");
   redirect(`/pobyty?synced=${result.stays.length}&ignored=${result.ignoredEvents}&syncedAt=${Date.now()}`);
 }
 
