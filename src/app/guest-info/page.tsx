@@ -41,14 +41,15 @@ export default async function GuestInfoPage() {
         </div>
       </section>
 
-      <section className="guide-feature guide-feature-keys"><div className="guide-feature-icon">⌂</div><div><span className="landing-kicker">02 · Check-in</span><h2>Keys & arrival time</h2>{toParagraphs(guide.keys)}</div></section>
+      <section className="guide-feature guide-feature-keys"><div className="guide-feature-icon">⌂</div><div><span className="landing-kicker">02 · Check-in</span><h2>Keys & arrival time</h2>{toParagraphs(guide.keys)}<div className="stay-times" aria-label="Check-in and check-out times"><div><span>Check-in</span><strong>From 16:00</strong></div><div><span>Check-out</span><strong>By 11:00</strong></div></div><p className="guide-note">Need a different arrival or departure time? Please let us know in the Airbnb chat — we will do our best to accommodate you.</p></div></section>
 
       <section id="home" className="guide-section guide-section-home"><span className="guide-number">03</span><div><h2>Useful things at home</h2>
         <div className="guide-grid guide-grid-vivid">
           <article className="guide-wifi"><span aria-hidden="true">📶</span><h3>Wi-Fi</h3><p><strong>{guide.wifiName}</strong><br />Password: <strong>{guide.wifiPassword}</strong></p></article>
-          <article><span aria-hidden="true">👟</span><h3>Care for the flat</h3>{toParagraphs(guide.apartmentCare)}</article>
-          <article><span aria-hidden="true">♨</span><h3>Heating, water & power</h3>{toParagraphs(guide.utilities)}</article>
+          <article><span aria-hidden="true">👟</span><h3>Care for the flat</h3>{toParagraphs(guide.apartmentCare)}<p className="guide-rule"><strong>Smoking:</strong> please smoke outside only, never anywhere inside the building. There have been smoking-related fire incidents in the past, so this is especially important.</p></article>
+          <article><span aria-hidden="true">♨</span><h3>Heating, water & power</h3>{toParagraphs(guide.utilities)}<p className="guide-note">If Wi-Fi, water, heating or electricity stops working, please contact us in the Airbnb chat rather than trying to fix it yourself.</p></article>
           <article><span aria-hidden="true">♻</span><h3>Waste & recycling</h3>{toParagraphs(guide.recycling)}</article>
+          <article className="guide-wide guide-bins"><div><span aria-hidden="true">🗑</span><h3>Finding the bins</h3><p>Use the green door marked in the photo. The bins are just beyond it on the ground floor.</p></div><Image src="/images/guide/waste-bins.jpeg" alt="Green door leading to the waste and recycling bins" width={1576} height={2100}/></article>
           <article className="guide-wide"><span aria-hidden="true">☕</span><h3>Coffee, laundry & appliances</h3>{toParagraphs(guide.appliances)}</article>
           <article className="guide-wide guide-oven-manual"><span aria-hidden="true">🔥</span><h3>Oven</h3><p>For cooking modes and safe use, please follow the Gorenje BO635E11 manual. If you need to clean the oven, use the separate AquaClean instructions below.</p><div className="guide-links"><a href="https://www.manualypdf.cz/gorenje/bo635e11/manu%C3%A1l" target="_blank" rel="noreferrer">Open oven manual ↗</a><a href="https://secure-res.craft.do/v2/Lm3Bw78YAehJZhcvY9KNyPwPgrptMq2iF71EvCLJc6ZLbrXK2SuYnopvQuXRo2wfQaPmGw7gwbboEuTR2VKoaKGGUSYmaVVNrgz6sx5SvKe4sk5dMX8eJ2wHvpLrySGp3WuEHMskZ1Xqi9CsCoSmNbWE6NpKwNYdDybdJPH2VKJhGHfr3wdxk7GBPjkLCrKpMTuWKawpvAVXGSmCenLgKCSu7SeHaab4bfYDrJx9Ns1cD8zH2wrv2KTw8fwXwaX1WatEQCnbMkSUzareb2ozQpUsPxmvqHLXPQ1T7sfTA62gtUMKaSdURkyNaFgGGJLPVvuiNC55/Oven%20Aqua%20cleaning.pdf" target="_blank" rel="noreferrer">Open AquaClean instructions ↗</a></div></article>
         </div>
@@ -77,7 +78,7 @@ export default async function GuestInfoPage() {
         <div className="guide-links"><a href="https://www.youtube.com/@HONESTGUIDE/videos" target="_blank" rel="noreferrer">More local tips from Honest Guide ↗</a></div>
       </div></section>
 
-      <section id="checkout" className="guide-feature guide-feature-checkout"><div className="guide-feature-icon">✓</div><div><span className="landing-kicker">05 · Departure</span><h2>Before you leave</h2>{toParagraphs(guide.checkout)}</div></section>
+      <section id="checkout" className="guide-feature guide-feature-checkout"><div className="guide-feature-icon">✓</div><div><span className="landing-kicker">05 · Departure</span><h2>Before you leave</h2><p><strong>Check-out is by 11:00.</strong> Please leave the keys in the mailbox, as explained during the personal handover.</p><ul className="guide-checklist"><li>Turn off lights and unplug appliances.</li><li>Close the windows and lock the apartment.</li><li>Take your belongings and drop the keys in the mailbox.</li></ul></div></section>
       <section id="help" className="guide-help"><div className="guide-help-copy"><span className="landing-kicker">Need assistance?</span><h2>We&apos;re here to help.</h2>{toParagraphs(guide.help.replace(/\s*In an emergency[\s\S]*$/i, ""))}</div><div className="emergency-list" aria-label="Emergency telephone numbers"><a href="tel:112"><span aria-hidden="true">🆘</span><strong>112</strong><small>European emergency number</small></a><a href="tel:158"><span aria-hidden="true">👮</span><strong>158</strong><small>Police</small></a><a href="tel:155"><span aria-hidden="true">🚑</span><strong>155</strong><small>Ambulance</small></a><a href="tel:150"><span aria-hidden="true">🚒</span><strong>150</strong><small>Fire brigade</small></a></div></section>
     </div>
   </main>;
