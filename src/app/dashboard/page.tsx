@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowIcon } from "@/components/icons";
-import { getAppData } from "@/data/repository";
+import { getAppData, getCheckInRegistrations } from "@/data/repository";
+import { buildMonthlyTaxReports } from "@/domain/tax-report";
 import type { Stay } from "@/domain/types";
 
 export const dynamic = "force-dynamic";
@@ -21,23 +22,31 @@ export default async function Dashboard() {
   const today = fromIso(iso(new Date()));
   const start = monday(today);
   const weeks = Array.from({ length: 4 }, (_, index) => addDays(start, index * 7));
-  const registrations = data.checkInRegistrations ?? [];
-  const waitingForGuest = registrations.filter((item) => !item.submittedAt).length;
-  const readyToReport = registrations.filter((item) => item.submittedAt && !item.reportedAt).length;
-  const openTasks = (data.supplyTasks ?? []).filter((item) => !item.completedAt);
+  let registrations: Awaited<ReturnType<typeof getCheckInRegistrations>> = [];
+  try { registrations = await getCheckInRegistrations(); } catch { /* Dashboard remains usable if encrypted details cannot be read. */ }
+  const waitingForGuest = registrations.filter((item) => !item.registration.submittedAt).length;
+  const readyToReport = registrations.filter((item) => item.registration.submittedAt && !item.registration.reportedAt).length;
+  const todayIso = iso(today);
+  const nextStay = stays.find((stay) => stay.checkOut >= todayIso);
+  const nextRegistration = nextStay ? registrations.find((item) => item.stay.id === nextStay.id) : undefined;
+  const previous = new Date(today); previous.setMonth(previous.getMonth() - 1);
+  const previousMonth = iso(previous).slice(0, 7);
+  const previousTax = buildMonthlyTaxReports(stays, registrations.map((item) => ({ stayId: item.stay.id, guests: item.guests }))).get(previousMonth);
+  const agendaDays = Array.from({ length: 28 }, (_, index) => addDays(start, index)).filter((day) => { const value = iso(day); return value >= todayIso && (value === todayIso || staysOn(stays, day).length > 0 || departuresOn(stays, day).length > 0); }).slice(0, 12);
 
   return <>
     <section className="dashboard-heading">
       <div><span className="eyebrow">Provoz apartmánu</span><h1>Co nás čeká</h1><p>Kalendář, údaje hostů a provozní úkoly na jednom místě.</p></div>
     </section>
+    {nextStay && <section className="dashboard-focus"><div><span className="eyebrow">{nextStay.checkIn <= todayIso ? "Aktuální pobyt" : "Nejbližší pobyt"}</span><h2>{shortDate.format(fromIso(nextStay.checkIn))} – {shortDate.format(fromIso(nextStay.checkOut))}</h2><p>{nextStay.guestName ? `${nextStay.guestName} · ` : ""}{nextStay.guests} hosté · check-in {nextRegistration ? `${nextRegistration.guests?.length ?? 0}/${nextRegistration.registration.expectedGuestCount ?? nextStay.guests}` : "odkaz nevytvořen"}</p></div><div className="dashboard-focus-actions"><Link className="button" href={`/pobyty/${nextStay.id}#messages`}>Připravit zprávu</Link><Link className="button secondary" href={`/pobyty/${nextStay.id}#check-in`}>Online check-in</Link><Link className="text-link" href={`/pobyty/${nextStay.id}`}>Celý pobyt <ArrowIcon/></Link></div></section>}
+    <section className="dashboard-work"><div className="section-heading"><div><span className="eyebrow">Dnešní přehled</span><h2>Co je potřeba vyřídit</h2></div></div><div className="dashboard-work-grid"><Link href="/cizinecka-policie"><strong>{readyToReport}</strong><span>hlášení připravených pro UbyPort</span></Link><Link href="/cizinecka-policie"><strong>{waitingForGuest}</strong><span>check-inů čeká na hosty</span></Link><Link href="/poplatky"><strong>{previousTax?.total.toLocaleString("cs-CZ") ?? 0} Kč</strong><span>poplatek za minulý měsíc{previousTax && !previousTax.complete ? " · odhad" : ""}</span></Link></div></section>
+    <section className="dashboard-tools"><Link href="/komunikace"><strong>Šablony zpráv</strong><span>Upravit texty pro hosty</span></Link><Link href="/pruvodce"><strong>Guest info</strong><span>Upravit informace pro hosty</span></Link><Link href="/guest-info" target="_blank"><strong>Náhled pro hosta</strong><span>Otevřít veřejnou stránku</span></Link><Link href="/domovni-kniha"><strong>Domovní kniha</strong><span>Historie evidovaných hostů</span></Link></section>
     <section className="dashboard-calendar" aria-labelledby="dashboard-calendar-title">
       <div className="section-heading"><div><span className="eyebrow">Nejbližší 4 týdny</span><h2 id="dashboard-calendar-title">Kalendář pobytů</h2></div><Link className="text-link" href="/pobyty">Celý kalendář <ArrowIcon/></Link></div>
       <div className="calendar-scroll"><div className="dashboard-bubble-calendar"><div className="bubble-weekdays">{Array.from({ length: 7 }, (_, index) => <span key={index}>{weekday.format(addDays(start, index))}</span>)}</div>{weeks.map((weekStart) => <DashboardWeek key={iso(weekStart)} weekStart={weekStart} stays={stays} today={today}/>)}</div></div>
-      <div className="mobile-calendar-agenda">{Array.from({ length: 28 }, (_, index) => { const day = addDays(start, index); const matches = staysOn(stays, day); const departures = departuresOn(stays, day); const dayIso = iso(day); return <div className={`agenda-day${matches.length ? " has-stay" : ""}${departures.length ? " has-departure" : ""}${dayIso < iso(today) ? " past" : ""}${dayIso === iso(today) ? " today" : ""}`} key={`agenda-${dayIso}`}><time>{weekday.format(day)} · {shortDate.format(day)}</time>{matches.map((stay) => <Link href={`/pobyty/${stay.id}`} key={stay.id}>{stay.source === "airbnb" ? "Airbnb" : "Pobyt"} · {stay.guests} hosté</Link>)}{departures.map((stay) => <Link className="agenda-departure" href={`/pobyty/${stay.id}`} key={`${stay.id}-departure`}>Odjezd ráno · {stay.guests} hosté</Link>)}{!matches.length && !departures.length && <span>Volno</span>}</div>; })}</div>
+      <div className="mobile-calendar-agenda">{agendaDays.map((day) => { const matches = staysOn(stays, day); const departures = departuresOn(stays, day); const dayIso = iso(day); return <div className={`agenda-day${matches.length ? " has-stay" : ""}${departures.length ? " has-departure" : ""}${dayIso === todayIso ? " today" : ""}`} key={`agenda-${dayIso}`}><time>{weekday.format(day)} · {shortDate.format(day)}</time>{matches.map((stay) => <Link href={`/pobyty/${stay.id}`} key={stay.id}>{stay.source === "airbnb" ? "Airbnb" : "Pobyt"} · {stay.guests} hosté</Link>)}{departures.map((stay) => <Link className="agenda-departure" href={`/pobyty/${stay.id}`} key={`${stay.id}-departure`}>Odjezd ráno · {stay.guests} hosté</Link>)}</div>; })}</div>
       {!stays.length && <div className="calendar-empty"><strong>Žádné pobyty v kalendáři</strong><span>Přidej pobyt ručně nebo synchronizuj Airbnb v detailu pobytů.</span></div>}
     </section>
-    <section className="dashboard-checkin"><div><span className="eyebrow">Cizinecká policie</span><h2>Check-in formuláře</h2><p>{readyToReport ? `${readyToReport} ${readyToReport === 1 ? "hlášení je" : "hlášení jsou"} připravená k odeslání.` : waitingForGuest ? `${waitingForGuest} ${waitingForGuest === 1 ? "host ještě nevyplnil formulář." : "hosté ještě nevyplnili formulář."}` : "Zatím není nic k odeslání."}</p></div><div className="checkin-stat"><strong>{readyToReport}</strong><span>k odeslání</span></div><Link className="button" href="/cizinecka-policie">Otevřít check-iny <ArrowIcon/></Link></section>
-    {openTasks.length > 0 && <section className="dashboard-tasks"><div className="section-heading"><div><span className="eyebrow">Připravit nebo dokoupit</span><h2>{openTasks.length} {openTasks.length === 1 ? "otevřená položka" : "otevřené položky"}</h2></div><Link className="text-link" href="/inventar">Otevřít zásoby <ArrowIcon/></Link></div><div className="task-preview">{openTasks.slice(0, 3).map((task) => <span key={task.id}>{task.name} · {task.quantity} ks{task.stayId ? " · přiřazeno k pobytu" : ""}</span>)}</div></section>}
   </>;
 }
 

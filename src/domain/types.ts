@@ -24,6 +24,7 @@ export interface InventoryItem {
 
 export interface Stay {
   id: string;
+  guestName?: string;
   checkIn: string;
   checkOut: string;
   guests: number;

@@ -112,8 +112,11 @@ export async function syncAirbnbCalendar() {
 }
 
 export async function createCheckInLink(formData: FormData) {
-  await createCheckInRegistration(String(formData.get("stayId") ?? ""));
+  const stayId = String(formData.get("stayId") ?? "");
+  await createCheckInRegistration(stayId);
   revalidatePath("/cizinecka-policie");
+  revalidatePath("/dashboard");
+  revalidatePath(`/pobyty/${stayId}`);
 }
 
 export async function revokeCheckInLink(formData: FormData) {
@@ -131,7 +134,7 @@ export async function saveStayOperation(formData: FormData) {
   assertDashboardWriteAllowed();
   const keyMethod = String(formData.get("keyMethod") ?? ""); const keyStatus = String(formData.get("keyStatus") ?? "");
   if (!["personal", "lockbox", "smart-lock"].includes(keyMethod) || !["not-arranged", "instructions-sent", "handed-over"].includes(keyStatus)) throw new Error("Neplatný stav předání klíčů.");
-  await updateStayOperation(String(formData.get("stayId") ?? ""), { arrivalTime: String(formData.get("arrivalTime") ?? ""), keyMethod: keyMethod as "personal" | "lockbox" | "smart-lock", keyStatus: keyStatus as "not-arranged" | "instructions-sent" | "handed-over" });
+  await updateStayOperation(String(formData.get("stayId") ?? ""), { guestName: String(formData.get("guestName") ?? "").trim(), arrivalTime: String(formData.get("arrivalTime") ?? ""), keyMethod: keyMethod as "personal" | "lockbox" | "smart-lock", keyStatus: keyStatus as "not-arranged" | "instructions-sent" | "handed-over" });
   revalidatePath("/dashboard"); revalidatePath("/pobyty"); revalidatePath("/pobyty/[id]", "page");
 }
 
@@ -185,8 +188,13 @@ export async function saveGuestGuide(formData: FormData) {
 }
 
 export async function markReported(formData: FormData) {
-  await markCheckInReported(String(formData.get("registrationId") ?? ""));
+  const registrationId = String(formData.get("registrationId") ?? "");
+  const stayId = String(formData.get("stayId") ?? "");
+  await markCheckInReported(registrationId);
   revalidatePath("/cizinecka-policie");
+  revalidatePath("/dashboard");
+  revalidatePath("/domovni-kniha");
+  if (stayId) revalidatePath(`/pobyty/${stayId}`);
 }
 
 const guestField = (formData: FormData, index: number, field: keyof CheckInGuest, required = true) => {

@@ -143,7 +143,9 @@ export async function replaceAirbnbStays(stays: Stay[]) {
   const currentById = new Map(data.stays.filter((stay) => stay.source === "airbnb").map((stay) => [stay.id, stay]));
   const merged = stays.map((stay) => {
     const current = currentById.get(stay.id);
-    return current?.guestCountManuallySet ? { ...stay, guests: current.guests, preparationGuests: current.preparationGuests, guestCountManuallySet: true, note: current.note } : stay;
+    if (!current) return stay;
+    const operational = { guestName: current.guestName, arrivalTime: current.arrivalTime, keyMethod: current.keyMethod, keyStatus: current.keyStatus, checklist: current.checklist, messageLog: current.messageLog, taxExemptGuests: current.taxExemptGuests };
+    return current.guestCountManuallySet ? { ...stay, ...operational, guests: current.guests, preparationGuests: current.preparationGuests, guestCountManuallySet: true, note: current.note } : { ...stay, ...operational };
   });
   // Airbnb's iCal only exposes a rolling window. Keep past stays once they have
   // finished, otherwise their check-in and UbyPort reporting history vanishes on
@@ -166,7 +168,7 @@ export async function updateStayGuests(id: string, guests: number) {
   await writeData(data);
 }
 
-export async function updateStayOperation(id: string, values: Pick<Stay, "arrivalTime" | "keyMethod" | "keyStatus">) {
+export async function updateStayOperation(id: string, values: Pick<Stay, "guestName" | "arrivalTime" | "keyMethod" | "keyStatus">) {
   const data = await readData(); const stay = data.stays.find((item) => item.id === id);
   if (!stay) throw new Error("Pobyt nebyl nalezen.");
   Object.assign(stay, values); await writeData(data);
