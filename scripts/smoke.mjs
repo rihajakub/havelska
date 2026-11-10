@@ -20,10 +20,11 @@ const ready = new Promise((resolve, reject) => {
 });
 
 const expectations = [
-  ["/", "Nejdřív rozděl zásoby"],
-  ["/inventar", "Inventář prádla"],
-  ["/pobyty", "Zatím žádný pobyt"],
+  ["/", "Quiet 2BR Old Town Apartment"],
+  ["/inventar", "Prádlo a čisticí prostředky"],
+  ["/pobyty", "Žádný aktuální ani budoucí pobyt"],
   ["/cesta?turns=3", "Co vzít do bytu"],
+  ["/domovni-kniha", "Domovní kniha"],
 ];
 
 async function fetchWithRetry(url) {

@@ -25,14 +25,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span><strong>Havelská</strong><small>správa apartmánu</small></span>
         </Link>
         <nav className="topbar-nav" aria-label="Hlavní navigace">
-          {links.map(({ href, label, Icon }) => <Link className={pathname === href ? "active" : ""} href={href} key={href}><Icon/><span>{label}</span></Link>)}
+          {links.map(({ href, label, Icon }) => <Link className={pathname === href || pathname.startsWith(`${href}/`) ? "active" : ""} href={href} key={href}><Icon/><span>{label}</span></Link>)}
         </nav>
         <div className="topbar-status"><span className="dev-chip">Provoz</span><form action={logout}><button className="logout-button" type="submit">Odhlásit</button></form></div>
       </header>
       <main className="page">{children}</main>
       <nav className="bottom-nav" aria-label="Hlavní navigace">
         {links.map(({ href, label, Icon }) => (
-          <Link className={pathname === href ? "active" : ""} href={href} key={href}><Icon/><span>{label}</span></Link>
+          <Link className={pathname === href || pathname.startsWith(`${href}/`) ? "active" : ""} href={href} key={href}><Icon/><span>{label}</span></Link>
         ))}
       </nav>
     </div>
