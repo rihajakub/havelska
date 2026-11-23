@@ -14,12 +14,12 @@ const desktopLinks = [
 ];
 const mobileLinks = [
   { href: "/dashboard", label: "Přehled", Icon: HomeIcon },
-  { href: "/pobyty", label: "Pobyty", Icon: CalendarIcon },
+  { href: "/dashboard#upcoming-stays", label: "Check-in", Icon: CalendarIcon },
   { href: "/cizinecka-policie", label: "Hosté", Icon: CalendarIcon },
   { href: "/vice", label: "Více", Icon: BoxIcon },
 ];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, buildVersion }: { children: React.ReactNode; buildVersion: string }) {
   const pathname = usePathname();
   if (pathname === "/" || pathname === "/login" || pathname.startsWith("/guest-info") || pathname.startsWith("/check-in/")) return <>{children}</>;
   return (
@@ -32,7 +32,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <nav className="topbar-nav" aria-label="Hlavní navigace">
           {desktopLinks.map(({ href, label, Icon }) => <Link className={pathname === href || pathname.startsWith(`${href}/`) ? "active" : ""} href={href} key={href}><Icon/><span>{label}</span></Link>)}
         </nav>
-        <div className="topbar-status"><span className="dev-chip">Provoz</span><form action={logout}><button className="logout-button" type="submit">Odhlásit</button></form></div>
+        <div className="topbar-status"><span className="dev-chip" title={`Nasazená verze: ${buildVersion}`}>Provoz · {buildVersion}</span><form action={logout}><button className="logout-button" type="submit">Odhlásit</button></form></div>
       </header>
       <main className="page">{children}</main>
       <nav className="bottom-nav" aria-label="Hlavní navigace">
