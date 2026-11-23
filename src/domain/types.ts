@@ -157,5 +157,6 @@ export interface AppData {
   supplyTasks?: SupplyTask[];
   communicationTemplates?: CommunicationTemplate[];
   taxSettlements?: TaxSettlement[];
+  airbnbSync?: { lastSuccessAt?: string; lastAttemptAt: string; error?: string; reservations?: number };
   updatedAt: string;
 }

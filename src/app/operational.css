@@ -1,4 +1,24 @@
 /* The operational controls live next to the calendar, so the daily workflow has one clear path. */
+.sync-status { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; padding: 12px; border-radius: 12px; background: #f3f6fa; color: #526984; font-size: 12px; }
+.sync-status form { margin: 0; }.sync-status p { margin: 5px 0 0; }
+.dashboard-calendar .calendar-scroll { display: block !important; overflow: hidden; }
+.dashboard-calendar .mobile-calendar-agenda { display: none !important; }
+.tax-status-bar { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+@media (max-width: 719px) {
+  .dashboard-calendar .dashboard-bubble-calendar { min-width: 0; width: 100%; }
+  .dashboard-calendar .dashboard-bubble-day { min-height: 0; padding: 7px 2px; }
+  .dashboard-calendar .dashboard-bubble-day time { font-size: 9px; }
+  .dashboard-calendar .dashboard-departure { top: 34px; left: 1px; right: 1px; padding: 3px 1px; font-size: 7px; white-space: normal; text-align: center; }
+  .dashboard-calendar .dashboard-stay-bubble { font-size: 10px; padding: 0 5px; }
+  .dashboard-calendar .dashboard-stay-bubble span { display: none; }
+  .tax-status-bar { grid-template-columns: 1fr !important; }
+  .sync-status form, .sync-status .button { width: 100%; }
+  .month-calendar { display: block !important; min-width: 0 !important; }
+  .month-calendar-section .mobile-calendar-agenda { display: none !important; }
+  .month-day { min-width: 0; padding: 6px 2px; }.month-day time { font-size: 11px; }
+  .month-stay-bar { min-width: 0; padding: 0 4px; font-size: 10px; }.month-stay-bar span { display: none; }
+  .month-departure { font-size: 7px; white-space: normal; }
+}
 :root { --ink: #182a45; --forest: #365c8d; --muted: #596b82; --mint: #e8f0fa; --line: #dce3ec; }
 .app-shell { color: #182a45; background: #f7f5f1; }
 .app-shell .page { max-width: 1180px; }

@@ -52,11 +52,12 @@ export default async function LocalTaxPage() {
     return b.localeCompare(a);
   });
   const reportMonths = months.filter(([, report]) => report.rows.length > 0);
-  const awaitingReport = reportMonths.filter(([month]) => !settlements.get(month)?.reportedAt);
+  const awaitingReport = reportMonths.filter(([month]) => month < currentMonth && !settlements.get(month)?.reportedAt);
   const awaitingPayment = reportMonths.filter(([month]) => {
     const settlement = settlements.get(month);
-    return Boolean(settlement?.reportedAt && !settlement?.paidAt);
+    return month < currentMonth && !settlement?.paidAt;
   });
+  const estimates = reportMonths.filter(([month]) => month >= currentMonth && !settlements.get(month)?.paidAt);
   const paidMonths = reportMonths.filter(([month]) => Boolean(settlements.get(month)?.paidAt));
   const amountFor = (items: typeof months) => items.reduce((total, [, report]) => total + report.total, 0);
 
@@ -76,7 +77,8 @@ export default async function LocalTaxPage() {
       {registrationError && <p className="tax-warning">{registrationError}</p>}
       <section className="tax-status-bar" aria-label="Stav turistické daně">
         <TaxStatusMenu label="K ohlášení" tone="warning" items={awaitingReport} amount={amountFor(awaitingReport)} />
-        <TaxStatusMenu label="K úhradě" tone="attention" items={awaitingPayment} amount={amountFor(awaitingPayment)} />
+        <TaxStatusMenu label="K úhradě · uzavřené měsíce" tone="attention" items={awaitingPayment} amount={amountFor(awaitingPayment)} />
+        <TaxStatusMenu label="Průběžné a budoucí odhady" tone="attention" items={estimates} amount={amountFor(estimates)} />
         <TaxStatusMenu label="Zaplaceno" tone="success" items={paidMonths} amount={amountFor(paidMonths)} />
       </section>
       <div className="tax-list">

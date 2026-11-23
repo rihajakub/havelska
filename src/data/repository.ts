@@ -75,6 +75,14 @@ export async function getAppData() {
   return readData();
 }
 
+export async function recordAirbnbSync(error?: string, reservations?: number) {
+  const data = await readData();
+  const now = new Date().toISOString();
+  data.airbnbSync = { ...data.airbnbSync, lastAttemptAt: now, error,
+    ...(error ? {} : { lastSuccessAt: now, reservations }) };
+  await writeData(data);
+}
+
 export async function getCheckInTemplate() {
   const data = await readData();
   return {

@@ -15,6 +15,7 @@ import {
   markCheckInReported,
   markStayMessageSent,
   replaceAirbnbStays,
+  recordAirbnbSync,
   revokeCheckInRegistration,
   saveCommunicationTemplates,
   submitCheckInRegistration,
@@ -163,6 +164,7 @@ export async function resolveSupplyTask(formData: FormData) {
 }
 
 export async function syncAirbnbCalendar() {
+  try {
   const url = process.env.AIRBNB_ICAL_URL;
   if (!url) throw new Error("AIRBNB_ICAL_URL není nastavené.");
   let response: Response;
@@ -174,12 +176,14 @@ export async function syncAirbnbCalendar() {
   if (!response.ok) throw new Error("Airbnb iCal vrátil neplatnou odpověď.");
   const result = parseAirbnbCalendarResult(await response.text());
   await replaceAirbnbStays(result.stays);
+  await recordAirbnbSync(undefined, result.stays.length);
+  } catch (error) {
+    await recordAirbnbSync(error instanceof Error ? error.message : "Synchronizace selhala.");
+  }
   revalidatePath("/dashboard");
   revalidatePath("/pobyty");
   revalidatePath("/cizinecka-policie");
-  redirect(
-    `/pobyty?synced=${result.stays.length}&ignored=${result.ignoredEvents}&syncedAt=${Date.now()}`,
-  );
+  redirect("/dashboard#calendar");
 }
 
 export async function createCheckInLink(formData: FormData) {

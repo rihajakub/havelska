@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { headers } from "next/headers";
+import { CopyCheckInLinkButton } from "@/components/copy-checkin-link-button";
 import { UpcomingStays } from "@/components/upcoming-stays";
-import { completeTaxMonth, createCheckInLink } from "@/app/actions";
+import { completeTaxMonth, createCheckInLink, syncAirbnbCalendar } from "@/app/actions";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { ArrowIcon } from "@/components/icons";
 import { getAppData, getCheckInRegistrations } from "@/data/repository";
@@ -50,6 +52,9 @@ export default async function Dashboard() {
     .sort((a, b) => a.checkIn.localeCompare(b.checkIn));
   const today = fromIso(iso(new Date()));
   const todayIso = iso(today);
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
+  const origin = host ? `${requestHeaders.get("x-forwarded-proto") ?? "https"}://${host}` : "";
   const start = monday(today);
   const weeks = Array.from({ length: 4 }, (_, index) =>
     addDays(start, index * 7),
@@ -151,9 +156,7 @@ export default async function Dashboard() {
           </div>
           <div className="dashboard-focus-actions">
             {nextRegistration ? (
-              <Link className="button secondary" href={`${stayHref(nextStay.id)}#check-in`}>
-                Otevřít check-in
-              </Link>
+              <CopyCheckInLinkButton value={`${origin}/check-in/${nextRegistration.token}`}/>
             ) : (
               <form action={createCheckInLink}>
                 <input type="hidden" name="stayId" value={nextStay.id} />
@@ -165,6 +168,80 @@ export default async function Dashboard() {
           </div>
         </section>
       )}
+      <section
+        className="dashboard-calendar"
+        id="calendar"
+        aria-labelledby="dashboard-calendar-title"
+      >
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">Nejbližší 4 týdny</span>
+            <h2 id="dashboard-calendar-title">Kalendář pobytů</h2>
+          </div>
+          <Link className="text-link" href="/pobyty">
+            Celý kalendář <ArrowIcon />
+          </Link>
+        </div>
+        <div className="sync-status" role="status"><div><strong>{data.airbnbSync?.lastSuccessAt ? `Synchronizováno ${new Intl.DateTimeFormat("cs-CZ", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Prague" }).format(new Date(data.airbnbSync.lastSuccessAt))}` : "Poslední synchronizace zatím není evidovaná"}</strong>{data.airbnbSync?.error && <p className="tax-warning">{data.airbnbSync.error} Poslední načtené pobyty zůstávají zobrazené.</p>}</div><form action={syncAirbnbCalendar}><FormSubmitButton className="button secondary" pendingText="Synchronizuji…">Synchronizovat Airbnb</FormSubmitButton></form></div>
+        <div className="calendar-scroll">
+          <div className="dashboard-bubble-calendar">
+            <div className="bubble-weekdays">
+              {Array.from({ length: 7 }, (_, index) => (
+                <span key={index}>{weekday.format(addDays(start, index))}</span>
+              ))}
+            </div>
+            {weeks.map((weekStart) => (
+              <DashboardWeek
+                key={iso(weekStart)}
+                weekStart={weekStart}
+                stays={stays}
+                today={today}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="mobile-calendar-agenda">
+          {agendaDays.map((day) => {
+            const matches = staysOn(stays, day);
+            const departures = departuresOn(stays, day);
+            const dayIso = iso(day);
+            return (
+              <div
+                className={`agenda-day${matches.length ? " has-stay" : ""}${departures.length ? " has-departure" : ""}${dayIso === todayIso ? " today" : ""}`}
+                key={`agenda-${dayIso}`}
+              >
+                <time>
+                  {weekday.format(day)} · {shortDate.format(day)}
+                </time>
+                {matches.map((stay) => (
+                  <Link href={stayHref(stay.id)} key={stay.id}>
+                    {stay.source === "airbnb" ? "Airbnb" : "Pobyt"} ·{" "}
+                    {stay.guests} hosté
+                  </Link>
+                ))}
+                {departures.map((stay) => (
+                  <Link
+                    className="agenda-departure"
+                    href={stayHref(stay.id)}
+                    key={`${stay.id}-departure`}
+                  >
+                    Odjezd ráno · {stay.guests} hosté
+                  </Link>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+        {!stays.length && (
+          <div className="calendar-empty">
+            <strong>Žádné pobyty v kalendáři</strong>
+            <span>
+              Přidej pobyt ručně nebo synchronizuj Airbnb v detailu pobytů.
+            </span>
+          </div>
+        )}
+      </section>
+      <UpcomingStays stays={stays.filter(stay => stay.checkOut >= todayIso)} registrations={registrations} error={registrationError}/>
       <section className={`dashboard-work${allDone ? " all-done" : ""}`}>
         <div className="section-heading">
           <div>
@@ -267,78 +344,6 @@ export default async function Dashboard() {
           <span>Historie evidovaných hostů</span>
         </Link>
       </section>
-      <section
-        className="dashboard-calendar"
-        aria-labelledby="dashboard-calendar-title"
-      >
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">Nejbližší 4 týdny</span>
-            <h2 id="dashboard-calendar-title">Kalendář pobytů</h2>
-          </div>
-          <Link className="text-link" href="/pobyty">
-            Celý kalendář <ArrowIcon />
-          </Link>
-        </div>
-        <div className="calendar-scroll">
-          <div className="dashboard-bubble-calendar">
-            <div className="bubble-weekdays">
-              {Array.from({ length: 7 }, (_, index) => (
-                <span key={index}>{weekday.format(addDays(start, index))}</span>
-              ))}
-            </div>
-            {weeks.map((weekStart) => (
-              <DashboardWeek
-                key={iso(weekStart)}
-                weekStart={weekStart}
-                stays={stays}
-                today={today}
-              />
-            ))}
-          </div>
-        </div>
-        <div className="mobile-calendar-agenda">
-          {agendaDays.map((day) => {
-            const matches = staysOn(stays, day);
-            const departures = departuresOn(stays, day);
-            const dayIso = iso(day);
-            return (
-              <div
-                className={`agenda-day${matches.length ? " has-stay" : ""}${departures.length ? " has-departure" : ""}${dayIso === todayIso ? " today" : ""}`}
-                key={`agenda-${dayIso}`}
-              >
-                <time>
-                  {weekday.format(day)} · {shortDate.format(day)}
-                </time>
-                {matches.map((stay) => (
-                  <Link href={stayHref(stay.id)} key={stay.id}>
-                    {stay.source === "airbnb" ? "Airbnb" : "Pobyt"} ·{" "}
-                    {stay.guests} hosté
-                  </Link>
-                ))}
-                {departures.map((stay) => (
-                  <Link
-                    className="agenda-departure"
-                    href={stayHref(stay.id)}
-                    key={`${stay.id}-departure`}
-                  >
-                    Odjezd ráno · {stay.guests} hosté
-                  </Link>
-                ))}
-              </div>
-            );
-          })}
-        </div>
-        {!stays.length && (
-          <div className="calendar-empty">
-            <strong>Žádné pobyty v kalendáři</strong>
-            <span>
-              Přidej pobyt ručně nebo synchronizuj Airbnb v detailu pobytů.
-            </span>
-          </div>
-        )}
-      </section>
-      <UpcomingStays stays={stays.filter(stay => stay.checkOut >= todayIso)} registrations={registrations} error={registrationError}/>
     </>
   );
 }
