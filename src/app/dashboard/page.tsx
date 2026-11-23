@@ -38,6 +38,9 @@ function departuresOn(stays: Stay[], day: Date) {
   const value = iso(day);
   return stays.filter((stay) => stay.checkOut === value);
 }
+function stayHref(id: string) {
+  return `/pobyty/${encodeURIComponent(id)}`;
+}
 
 export default async function Dashboard() {
   const data = await getAppData();
@@ -145,16 +148,16 @@ export default async function Dashboard() {
             </p>
           </div>
           <div className="dashboard-focus-actions">
-            <Link className="button" href={`/pobyty/${nextStay.id}#messages`}>
+            <Link className="button" href={`${stayHref(nextStay.id)}#messages`}>
               Připravit zprávu
             </Link>
             <Link
               className="button secondary"
-              href={`/pobyty/${nextStay.id}#check-in`}
+              href={`${stayHref(nextStay.id)}#check-in`}
             >
               Online check-in
             </Link>
-            <Link className="text-link" href={`/pobyty/${nextStay.id}`}>
+            <Link className="text-link" href={stayHref(nextStay.id)}>
               Celý pobyt <ArrowIcon />
             </Link>
           </div>
@@ -306,7 +309,7 @@ export default async function Dashboard() {
                   {weekday.format(day)} · {shortDate.format(day)}
                 </time>
                 {matches.map((stay) => (
-                  <Link href={`/pobyty/${stay.id}`} key={stay.id}>
+                  <Link href={stayHref(stay.id)} key={stay.id}>
                     {stay.source === "airbnb" ? "Airbnb" : "Pobyt"} ·{" "}
                     {stay.guests} hosté
                   </Link>
@@ -314,7 +317,7 @@ export default async function Dashboard() {
                 {departures.map((stay) => (
                   <Link
                     className="agenda-departure"
-                    href={`/pobyty/${stay.id}`}
+                    href={stayHref(stay.id)}
                     key={`${stay.id}-departure`}
                   >
                     Odjezd ráno · {stay.guests} hosté
@@ -397,7 +400,7 @@ function DashboardWeek({
             {departures.map((stay) => (
               <Link
                 className="dashboard-departure"
-                href={`/pobyty/${stay.id}`}
+                href={stayHref(stay.id)}
                 key={stay.id}
               >
                 Odjezd ráno
@@ -414,7 +417,7 @@ function DashboardWeek({
               gridColumn: `${startColumn} / ${endColumn}`,
               gridRow: lane + 2,
             }}
-            href={`/pobyty/${stay.id}`}
+            href={stayHref(stay.id)}
             key={`${stay.id}-${iso(weekStart)}`}
           >
             <strong>{stay.source === "airbnb" ? "Airbnb" : "Pobyt"}</strong>

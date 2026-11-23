@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { markTaxSettlement, saveTaxExemption } from "@/app/actions";
+import { clearTaxSettlementStatus, markTaxSettlement, saveTaxExemption } from "@/app/actions";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { getAppData, getCheckInRegistrations } from "@/data/repository";
 import { buildMonthlyTaxReports } from "@/domain/tax-report";
@@ -57,7 +57,7 @@ export default async function LocalTaxPage() {
       <section className="page-heading split">
         <div>
           <span className="eyebrow">Městská administrativa</span>
-          <h1>Poplatek z pobytu</h1>
+          <h1>Turistická daň</h1>
           <p>
             Praha 1: 50 Kč za zpoplatněnou osobu a noc. Nezletilé aplikace
             odečte podle data narození; u neúplných check-inů ukazuje bezpečný
@@ -187,12 +187,30 @@ export default async function LocalTaxPage() {
                     </FormSubmitButton>
                   </form>
                 )}
+                {settlement?.reportedAt && (
+                  <form action={clearTaxSettlementStatus}>
+                    <input type="hidden" name="month" value={month} />
+                    <input type="hidden" name="action" value="reported" />
+                    <FormSubmitButton className="button secondary" pendingText="Vrácím…">
+                      Vrátit ohlášení
+                    </FormSubmitButton>
+                  </form>
+                )}
                 {!paid && (
                   <form action={markTaxSettlement}>
                     <input type="hidden" name="month" value={month} />
                     <input type="hidden" name="action" value="paid" />
                     <FormSubmitButton pendingText="Ukládám…">
                       Označit platbu
+                    </FormSubmitButton>
+                  </form>
+                )}
+                {paid && (
+                  <form action={clearTaxSettlementStatus}>
+                    <input type="hidden" name="month" value={month} />
+                    <input type="hidden" name="action" value="paid" />
+                    <FormSubmitButton className="button secondary" pendingText="Vrácím…">
+                      Vrátit platbu
                     </FormSubmitButton>
                   </form>
                 )}

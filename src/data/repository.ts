@@ -374,6 +374,17 @@ export async function completeTaxSettlement(month: string) {
   await writeData(data);
 }
 
+export async function clearTaxSettlement(month: string, action: "reported" | "paid") {
+  const data = await readData(); const current = data.taxSettlements ?? [];
+  const settlement = current.find((item) => item.month === month);
+  if (!settlement) return;
+  delete settlement[action === "reported" ? "reportedAt" : "paidAt"];
+  data.taxSettlements = settlement.reportedAt || settlement.paidAt || settlement.note
+    ? [...current.filter((item) => item.month !== month), settlement].sort((a, b) => b.month.localeCompare(a.month))
+    : current.filter((item) => item.month !== month);
+  await writeData(data);
+}
+
 export async function updateStayTaxExemption(id: string, exemptGuests: number) {
   const data = await readData();
   const stay = data.stays.find((item) => item.id === id);

@@ -8,7 +8,6 @@ import { logout } from "@/app/actions";
 
 const desktopLinks = [
   { href: "/dashboard", label: "Přehled", Icon: HomeIcon },
-  { href: "/pobyty", label: "Pobyty", Icon: CalendarIcon },
   { href: "/cizinecka-policie", label: "Hlášení", Icon: CalendarIcon },
   { href: "/poplatky", label: "Poplatky", Icon: BoxIcon },
   { href: "/pruvodce", label: "Průvodce", Icon: HomeIcon },

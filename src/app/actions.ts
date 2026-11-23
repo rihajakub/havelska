@@ -8,6 +8,7 @@ import {
   addStay,
   addSupplyTask,
   adjustCleaningSupply,
+  clearTaxSettlement,
   completeSupplyTask,
   completeTaxSettlement,
   createCheckInRegistration,
@@ -186,6 +187,7 @@ export async function createCheckInLink(formData: FormData) {
   await createCheckInRegistration(stayId);
   revalidatePath("/cizinecka-policie");
   revalidatePath("/dashboard");
+  revalidatePath("/pobyty");
   revalidatePath(`/pobyty/${stayId}`);
 }
 
@@ -293,6 +295,16 @@ export async function markTaxSettlement(formData: FormData) {
 export async function completeTaxMonth(formData: FormData) {
   assertDashboardWriteAllowed();
   await completeTaxSettlement(String(formData.get("month") ?? ""));
+  revalidatePath("/poplatky");
+  revalidatePath("/dashboard");
+}
+
+export async function clearTaxSettlementStatus(formData: FormData) {
+  assertDashboardWriteAllowed();
+  const action = String(formData.get("action") ?? "");
+  if (action !== "reported" && action !== "paid")
+    throw new Error("Neplatná akce.");
+  await clearTaxSettlement(String(formData.get("month") ?? ""), action);
   revalidatePath("/poplatky");
   revalidatePath("/dashboard");
 }

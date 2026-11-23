@@ -1,0 +1,31 @@
+/* The operational controls live next to the calendar, so the daily workflow has one clear path. */
+.dashboard-stays { margin-top: 26px; padding: clamp(18px, 3vw, 30px); border: 1px solid #d5e1f3; border-radius: 22px; background: rgba(255,255,255,.84); box-shadow: 0 18px 38px rgba(32,72,140,.07); }
+.dashboard-stay-list { display: grid; gap: 12px; }
+.dashboard-stay-card { display: grid; grid-template-columns: 126px minmax(130px, .55fr) minmax(330px, 1.45fr); gap: 18px; align-items: center; padding: 17px; border: 1px solid #dae4f1; border-radius: 16px; background: #fbfdff; }
+.dashboard-stay-date { display: grid; gap: 3px; color: #5f7090; font-size: 13px; font-weight: 700; }
+.dashboard-stay-date strong { color: #1e416f; font-size: 18px; }
+.dashboard-stay-summary h3 { margin: 4px 0 8px; color: #182d4d; font-size: 22px; }
+.dashboard-stay-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 10px; }
+.dashboard-stay-actions > form:not(.guest-count-form) { display: contents; }
+.dashboard-stay-actions > form:not(.guest-count-form) .button { min-height: 42px; }
+.dashboard-stay-actions .guest-count-form { margin: 0; }
+.checkin-link-inline { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; color: #42604e; font-size: 13px; font-weight: 750; }
+.checkin-link-inline .copy-link { white-space: nowrap; }
+.tax-overview { overflow: hidden; margin-bottom: 18px; border: 1px solid #d6e0ee; border-radius: 18px; background: rgba(255,255,255,.88); box-shadow: 0 12px 28px rgba(34,69,120,.06); }
+.tax-table-wrap { overflow-x: auto; }
+.tax-table { width: 100%; min-width: 780px; border-collapse: collapse; text-align: left; }
+.tax-table th, .tax-table td { padding: 15px 16px; border-bottom: 1px solid #e1e8f1; vertical-align: middle; }
+.tax-table thead th { color: #526984; background: #eff4fa; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+.tax-table tbody th { color: #1e416f; font-size: 16px; text-transform: capitalize; }
+.tax-table tr:last-child th, .tax-table tr:last-child td { border-bottom: 0; }
+.tax-control { display: inline-flex; align-items: center; gap: 8px; }
+.tax-control.done strong { color: #276848; }
+.tax-control form { margin: 0; }
+.tax-control button:not(.button) { padding: 3px 0; border: 0; color: #6d5b42; background: transparent; font: inherit; font-size: 12px; font-weight: 750; text-decoration: underline; cursor: pointer; }
+.tax-table .button { min-height: 34px; padding: 8px 11px; font-size: 12px; white-space: nowrap; }
+.tax-card > summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; cursor: pointer; list-style: none; }
+.tax-card > summary::-webkit-details-marker { display: none; }
+.tax-card > summary > span:first-child { display: grid; gap: 3px; }
+.tax-card > summary strong { color: #1f3e68; text-transform: capitalize; }
+.tax-card > summary small { color: #677991; }
+@media (max-width: 719px) { .dashboard-stays { margin-inline: -2px; padding: 16px; border-radius: 17px; }.dashboard-stay-card { grid-template-columns: 1fr; gap: 12px; padding: 15px; }.dashboard-stay-actions { justify-content: flex-start; }.dashboard-stay-actions .guest-count-form { width: 100%; }.checkin-link-inline { width: 100%; justify-content: space-between; }.tax-overview { margin-inline: -2px; border-radius: 14px; }.tax-table th, .tax-table td { padding: 12px; } }

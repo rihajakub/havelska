@@ -47,8 +47,14 @@ export default async function StayDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  let decodedId = id;
+  try {
+    decodedId = decodeURIComponent(id);
+  } catch {
+    /* Keep the unmodified value if the path segment is malformed. */
+  }
   const data = await getAppData();
-  const stay = data.stays.find((item) => item.id === id);
+  const stay = data.stays.find((item) => item.id === decodedId || item.id === id);
   if (!stay)
     return (
       <section className="empty">

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { AppShell } from "@/components/app-shell";
 import "./globals.css";
+import "./operational.css";
 
 export const metadata: Metadata = {
   title: "Havelská Apartment",
