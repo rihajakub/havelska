@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UpcomingStays } from "@/components/upcoming-stays";
 import { completeTaxMonth, createCheckInLink } from "@/app/actions";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { ArrowIcon } from "@/components/icons";
@@ -54,10 +55,11 @@ export default async function Dashboard() {
     addDays(start, index * 7),
   );
   let registrations: Awaited<ReturnType<typeof getCheckInRegistrations>> = [];
+  let registrationError = "";
   try {
     registrations = await getCheckInRegistrations();
   } catch {
-    /* Dashboard remains usable if encrypted details cannot be read. */
+    registrationError = "Check-in odkazy se nepodařilo načíst. Zkus obnovit stránku.";
   }
   const waitingForGuest = registrations.filter(
     (item) => item.stay.checkOut >= todayIso && !item.registration.submittedAt,
@@ -155,7 +157,7 @@ export default async function Dashboard() {
             ) : (
               <form action={createCheckInLink}>
                 <input type="hidden" name="stayId" value={nextStay.id} />
-                <FormSubmitButton pendingText="Vytvářím odkaz…">
+                <FormSubmitButton disabled={Boolean(registrationError)} pendingText="Vytvářím odkaz…">
                   Vytvořit check-in
                 </FormSubmitButton>
               </form>
@@ -336,6 +338,7 @@ export default async function Dashboard() {
           </div>
         )}
       </section>
+      <UpcomingStays stays={stays.filter(stay => stay.checkOut >= todayIso)} registrations={registrations} error={registrationError}/>
     </>
   );
 }

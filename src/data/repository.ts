@@ -406,6 +406,8 @@ export async function createCheckInRegistration(stayId: string) {
   const data = await readData();
   const stay = data.stays.find((candidate) => candidate.id === stayId);
   if (!stay) throw new Error("Pobyt nebyl nalezen.");
+  const existing = (data.checkInRegistrations ?? []).find(item => item.stayId === stayId);
+  if (existing) return existing;
   const token = randomBytes(32).toString("base64url");
   const registration: CheckInRegistration = {
     id: randomUUID(),

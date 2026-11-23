@@ -1,4 +1,36 @@
 /* The operational controls live next to the calendar, so the daily workflow has one clear path. */
+:root { --ink: #182a45; --forest: #365c8d; --muted: #596b82; --mint: #e8f0fa; --line: #dce3ec; }
+.app-shell { color: #182a45; background: #f7f5f1; }
+.app-shell .page { max-width: 1180px; }
+.app-shell .topbar { background: rgba(255,255,255,.96); border-color: #dce3ec; }
+.app-shell .button, .public-checkin .checkin-submit { background: #365c8d !important; box-shadow: 0 3px 8px rgba(24,42,69,.10) !important; border-radius: 11px; min-height: 44px; }
+.app-shell .button.secondary { background: #fff !important; color: #365c8d; border: 1px solid #cbd7e6; box-shadow: none !important; }
+.app-shell .button:hover { filter: brightness(.95); transform: none; }
+.app-shell .text-link { color: #365c8d; }
+.app-shell :is(input, select, textarea) { border-color: #cbd7e6; border-radius: 10px; font-size: 16px; min-width: 0; max-width: 100%; }
+.app-shell :is(input, select) { min-height: 44px; }
+.app-shell :is(.detail-card, .reporting-card, .stay-card, .dashboard-calendar, .dashboard-work, .tax-card, .form-card) { background: #fff; border-color: #dce3ec; box-shadow: 0 4px 18px rgba(24,42,69,.04); }
+.app-shell .dashboard-focus { background: #e8f0fa; border-color: #ccd9e9; box-shadow: none; }
+.app-shell :is(.dashboard-heading h1, .page-heading h1, .reporting-heading h1) { font-family: inherit; font-weight: 750; font-size: clamp(30px, 4vw, 44px); letter-spacing: -.035em; }
+.app-shell .dashboard-stay-summary h3 { font-size: 17px; }
+.app-shell .dashboard-stay-summary p { margin: 8px 0; font-size: 13px; color: #596b82; }
+.app-shell .status-pill { font-size: 11px; line-height: 1.5; }
+.app-shell [id] { scroll-margin-top: 110px; }
+.app-shell .dev-chip { overflow-wrap: anywhere; }
+.app-shell .dashboard-focus-actions { grid-template-columns: 1fr; }
+.app-shell .dashboard-focus-actions .button { width: 100%; }
+.app-shell .dashboard-stay-actions { align-items: end; }
+.app-shell .dashboard-stay-actions .guest-count-form { display: flex; gap: 8px; align-items: end; }
+.app-shell .dashboard-stay-actions .guest-count-form label { display: grid; gap: 5px; }
+.app-shell .dashboard-stay-actions .button { white-space: normal; }
+.tax-status-menu > div { max-height: 320px; overflow-y: auto; }
+@media (max-width: 719px) {
+  .app-shell .topbar-status { max-width: 52%; }.app-shell .dev-chip { font-size: 9px; }
+  .app-shell .dashboard-stay-actions { display: grid; grid-template-columns: 1fr; justify-items: stretch; }
+  .app-shell .dashboard-stay-actions form, .app-shell .dashboard-stay-actions .button { width: 100%; }
+  .app-shell .dashboard-stay-actions .guest-count-form label { flex: 0 0 65px; }
+  .app-shell .dashboard-stay-actions .guest-count-form .button { flex: 1; }
+}
 .dashboard-stays { margin-top: 26px; padding: clamp(18px, 3vw, 30px); border: 1px solid #d5e1f3; border-radius: 22px; background: rgba(255,255,255,.84); box-shadow: 0 18px 38px rgba(32,72,140,.07); }
 .dashboard-stay-list { display: grid; gap: 12px; }
 .dashboard-stay-card { display: grid; grid-template-columns: 126px minmax(130px, .55fr) minmax(330px, 1.45fr); gap: 18px; align-items: center; padding: 17px; border: 1px solid #dae4f1; border-radius: 16px; background: #fbfdff; }
