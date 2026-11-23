@@ -51,6 +51,14 @@ export default async function LocalTaxPage() {
       return a.localeCompare(b);
     return b.localeCompare(a);
   });
+  const reportMonths = months.filter(([, report]) => report.rows.length > 0);
+  const awaitingReport = reportMonths.filter(([month]) => !settlements.get(month)?.reportedAt);
+  const awaitingPayment = reportMonths.filter(([month]) => {
+    const settlement = settlements.get(month);
+    return Boolean(settlement?.reportedAt && !settlement?.paidAt);
+  });
+  const paidMonths = reportMonths.filter(([month]) => Boolean(settlements.get(month)?.paidAt));
+  const amountFor = (items: typeof months) => items.reduce((total, [, report]) => total + report.total, 0);
 
   return (
     <>
@@ -66,6 +74,11 @@ export default async function LocalTaxPage() {
         </div>
       </section>
       {registrationError && <p className="tax-warning">{registrationError}</p>}
+      <section className="tax-status-bar" aria-label="Stav turistické daně">
+        <TaxStatusMenu label="K ohlášení" tone="warning" items={awaitingReport} amount={amountFor(awaitingReport)} />
+        <TaxStatusMenu label="K úhradě" tone="attention" items={awaitingPayment} amount={amountFor(awaitingPayment)} />
+        <TaxStatusMenu label="Zaplaceno" tone="success" items={paidMonths} amount={amountFor(paidMonths)} />
+      </section>
       <div className="tax-list">
         {months.map(([month, report]) => {
           const settlement = settlements.get(month);
@@ -77,6 +90,7 @@ export default async function LocalTaxPage() {
             <section
               className={`tax-card${paid ? " tax-card-paid" : ""}${month === currentMonth ? " tax-card-current" : ""}`}
               key={month}
+              id={`tax-${month}`}
             >
               <div className="tax-card-heading">
                 <div>
@@ -221,4 +235,8 @@ export default async function LocalTaxPage() {
       </div>
     </>
   );
+}
+
+function TaxStatusMenu({ label, tone, items, amount }: { label: string; tone: "warning" | "attention" | "success"; items: Array<[string, { total: number }]>; amount: number }) {
+  return <details className={`tax-status-menu ${tone}`}><summary><span>{label}</span><strong>{amount.toLocaleString("cs-CZ")} Kč</strong><small>{items.length} {items.length === 1 ? "měsíc" : items.length < 5 ? "měsíce" : "měsíců"} · Rozbalit</small></summary><div>{items.length ? items.map(([month, report]) => <Link href={`#tax-${month}`} key={month}><span>{monthName.format(fromIso(`${month}-01`))}</span><strong>{report.total.toLocaleString("cs-CZ")} Kč</strong></Link>) : <p>Žádný měsíc v této skupině.</p>}</div></details>;
 }

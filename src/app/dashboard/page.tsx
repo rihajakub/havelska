@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { completeTaxMonth } from "@/app/actions";
+import { completeTaxMonth, createCheckInLink } from "@/app/actions";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { ArrowIcon } from "@/components/icons";
 import { getAppData, getCheckInRegistrations } from "@/data/repository";
@@ -148,18 +148,18 @@ export default async function Dashboard() {
             </p>
           </div>
           <div className="dashboard-focus-actions">
-            <Link className="button" href={`${stayHref(nextStay.id)}#messages`}>
-              Připravit zprávu
-            </Link>
-            <Link
-              className="button secondary"
-              href={`${stayHref(nextStay.id)}#check-in`}
-            >
-              Online check-in
-            </Link>
-            <Link className="text-link" href={stayHref(nextStay.id)}>
-              Celý pobyt <ArrowIcon />
-            </Link>
+            {nextRegistration ? (
+              <Link className="button secondary" href={`${stayHref(nextStay.id)}#check-in`}>
+                Otevřít check-in
+              </Link>
+            ) : (
+              <form action={createCheckInLink}>
+                <input type="hidden" name="stayId" value={nextStay.id} />
+                <FormSubmitButton pendingText="Vytvářím odkaz…">
+                  Vytvořit check-in
+                </FormSubmitButton>
+              </form>
+            )}
           </div>
         </section>
       )}

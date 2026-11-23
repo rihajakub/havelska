@@ -29,3 +29,16 @@
 .tax-card > summary strong { color: #1f3e68; text-transform: capitalize; }
 .tax-card > summary small { color: #677991; }
 @media (max-width: 719px) { .dashboard-stays { margin-inline: -2px; padding: 16px; border-radius: 17px; }.dashboard-stay-card { grid-template-columns: 1fr; gap: 12px; padding: 15px; }.dashboard-stay-actions { justify-content: flex-start; }.dashboard-stay-actions .guest-count-form { width: 100%; }.checkin-link-inline { width: 100%; justify-content: space-between; }.tax-overview { margin-inline: -2px; border-radius: 14px; }.tax-table th, .tax-table td { padding: 12px; } }
+.dashboard-focus-actions form { margin: 0; }
+.tax-status-bar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 22px; }
+.tax-status-menu { position: relative; border: 1px solid #dce4ef; border-radius: 15px; background: #fff; box-shadow: 0 8px 20px rgba(34, 69, 120, .05); }
+.tax-status-menu summary { display: grid; gap: 3px; padding: 14px 16px; cursor: pointer; list-style: none; }
+.tax-status-menu summary::-webkit-details-marker { display: none; }
+.tax-status-menu summary > span { color: #5d718d; font-size: 11px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+.tax-status-menu summary > strong { color: #203c65; font-size: 20px; }
+.tax-status-menu summary > small { color: #718199; font-size: 11px; font-weight: 650; }
+.tax-status-menu.warning { border-top: 3px solid #bb7f2b; }.tax-status-menu.attention { border-top: 3px solid #406b9f; }.tax-status-menu.success { border-top: 3px solid #33765a; }
+.tax-status-menu > div { position: absolute; z-index: 5; top: calc(100% + 7px); left: 0; right: 0; display: grid; overflow: hidden; border: 1px solid #dce4ef; border-radius: 13px; background: #fff; box-shadow: 0 16px 30px rgba(28, 52, 85, .17); }
+.tax-status-menu > div a, .tax-status-menu > div p { display: flex; justify-content: space-between; gap: 8px; margin: 0; padding: 11px 12px; color: #36577f; font-size: 12px; text-decoration: none; }
+.tax-status-menu > div a + a { border-top: 1px solid #edf1f6; }.tax-status-menu > div a:hover { background: #f1f5fb; }.tax-status-menu > div p { color: #718199; }
+@media (max-width: 719px) { .tax-status-bar { grid-template-columns: 1fr; gap: 8px; }.tax-status-menu summary { grid-template-columns: 1fr auto; align-items: center; }.tax-status-menu summary > small { grid-column: 1 / -1; }.tax-status-menu > div { position: static; margin: 0 10px 10px; box-shadow: none; } }
