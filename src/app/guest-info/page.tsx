@@ -28,6 +28,7 @@ export default async function GuestInfoPage() {
     </header>
     <div className="guest-guide-content">
       <section id="welcome" className="guide-intro guide-intro-vivid"><span className="landing-kicker">Your Prague base</span><h2>Make yourself at home</h2>{toParagraphs(guide.welcome)}</section>
+      <aside className="guide-shoes-note" aria-label="Shoes-off home"><span aria-hidden="true">👟</span><div><strong>A shoes-off home</strong><p>Please take off your outdoor shoes when you enter the apartment. It helps keep our wooden floors clean and makes the space comfortable for everyone. Thank you!</p></div></aside>
 
       <section id="arrival" className="guide-feature guide-feature-arrival">
         <div className="guide-feature-icon">✦</div><div><span className="landing-kicker">01 · Arrival</span><h2>Getting to the apartment</h2>{toParagraphs(guide.arrival)}

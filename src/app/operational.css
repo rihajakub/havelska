@@ -1,4 +1,7 @@
 /* The operational controls live next to the calendar, so the daily workflow has one clear path. */
+.guide-shoes-note { display: flex; align-items: flex-start; gap: 16px; margin: 0 0 28px; padding: 22px; border: 1px solid #cbd9e9; border-radius: 18px; color: #182a45; background: #e8f0fa; }
+.guide-shoes-note > span { flex: 0 0 auto; font-size: 28px; }
+.guide-shoes-note strong { font-size: 19px; }.guide-shoes-note p { margin: 6px 0 0; color: #405773; font-size: 16px; line-height: 1.6; }
 .sync-status { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; padding: 12px; border-radius: 12px; background: #f3f6fa; color: #526984; font-size: 12px; }
 .sync-status form { margin: 0; }.sync-status p { margin: 5px 0 0; }
 .dashboard-calendar .calendar-scroll { display: block !important; overflow: hidden; }
