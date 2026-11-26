@@ -1,4 +1,21 @@
 /* The operational controls live next to the calendar, so the daily workflow has one clear path. */
+@media (max-width: 719px) {
+  .guest-guide-vivid .guide-feature { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 20px; }
+  .guest-guide-vivid .guide-feature-icon { width: 38px; height: 38px; font-size: 20px; }
+  .guest-guide-vivid .guide-section { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .guest-guide-vivid .guide-grid { grid-template-columns: minmax(0, 1fr); }
+  .guest-guide-vivid .place-list { grid-template-columns: minmax(0, 1fr); }
+  .guest-guide-vivid .place-list > a { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 16px; }
+  .guest-guide-vivid .place-logo { justify-self: start; }
+  .guest-guide-vivid .place-copy { width: 100%; }
+  .guest-guide-vivid .place-copy > strong { font-size: 18px; }
+  .guest-guide-vivid .place-map-link { display: inline-flex; align-items: center; min-height: 44px; }
+  .guest-guide-vivid .guide-links a, .guest-guide-vivid .guide-contents a { display: inline-flex; align-items: center; min-height: 44px; }
+  .guest-guide-vivid .technical-photo-grid { grid-template-columns: minmax(0, 1fr); }
+  .guest-guide-vivid .guide-checklist small { font-size: 14px; line-height: 1.5; }
+  .guest-guide-vivid .nearby-map { padding: 14px; }
+  .guest-guide-vivid .emergency-list a { grid-template-columns: 34px 48px minmax(0, 1fr); gap: 8px; }
+}
 .guest-guide-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; padding: 24px 0; margin-top: 28px; border-top: 1px solid #dce3ec; color: #52647b; font-size: 13px; }
 .guest-guide-footer small { font-size: 12px; overflow-wrap: anywhere; }
 .place-copy .place-map-link { display: block; margin-top: 10px; color: #264b76; font-size: 13px; font-weight: 800; }
