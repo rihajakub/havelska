@@ -11,13 +11,13 @@ const toParagraphs = (text: string) => text.split(/\n\s*\n/).filter(Boolean).map
 export const dynamic = "force-dynamic";
 
 const equipment = [
-  { name: "Washing machine", location: "In the bathroom." },
-  { name: "Drying rack", location: "Next to the washing machine in the bathroom." },
-  { name: "Ironing board", location: "Next to the washing machine in the bathroom." },
-  { name: "Iron", location: "On top of the washing machine." },
-  { name: "Hairdryer", location: "Under the bathroom sink." },
-  { name: "Vacuum cleaner", location: "In the hallway cupboard." },
-  { name: "Fan" },
+  { icon: "🧺", name: "Washing machine", location: "In the bathroom." },
+  { icon: "👕", name: "Drying rack", location: "Next to the washing machine in the bathroom." },
+  { icon: "👔", name: "Ironing board", location: "Next to the washing machine in the bathroom." },
+  { icon: "♨️", name: "Iron", location: "On top of the washing machine." },
+  { icon: "💨", name: "Hairdryer", location: "Under the bathroom sink." },
+  { icon: "🧹", name: "Vacuum cleaner", location: "In the hallway cupboard." },
+  { icon: "🌀", name: "Fan" },
 ];
 
 function PlaceCard({ href, name, detail, logo, logoAlt, mark }: { href: string; name: string; detail: string; logo?: string; logoAlt?: string; mark?: string }) {
@@ -59,20 +59,20 @@ export default async function GuestInfoPage() {
       <nav id="contents" className="guide-contents" aria-label="Guide contents">
         <strong>Quick links</strong>
         <div>
-          <a href="#keys">Check-in &amp; keys</a>
-          <a href="#arrival">Transport</a>
-          <a href="#wifi">Wi-Fi</a>
-          <a href="#equipment">Apartment essentials</a>
-          <a href="#prague">Food &amp; coffee</a>
-          <a href="#checkout">Check-out</a>
-          <a href="#help">Need help?</a>
+          <a href="#keys"><span className="guide-nav-icon" aria-hidden="true">🔑</span>Check-in &amp; keys</a>
+          <a href="#arrival"><span className="guide-nav-icon" aria-hidden="true">🚇</span>Transport</a>
+          <a href="#wifi"><span className="guide-nav-icon" aria-hidden="true">📶</span>Wi-Fi</a>
+          <a href="#equipment"><span className="guide-nav-icon" aria-hidden="true">🧺</span>Apartment essentials</a>
+          <a href="#prague"><span className="guide-nav-icon" aria-hidden="true">📍</span>Food &amp; coffee</a>
+          <a href="#checkout"><span className="guide-nav-icon" aria-hidden="true">✓</span>Check-out</a>
+          <a href="#help"><span className="guide-nav-icon" aria-hidden="true">💬</span>Need help?</a>
         </div>
       </nav>
 
       <section id="keys" className="guide-feature guide-feature-keys">
 
         <div>
-          <h2>Check-in &amp; keys</h2>
+          <h2><span className="guide-heading-icon" aria-hidden="true">🔑</span>Check-in &amp; keys</h2>
           <ol className="guide-arrival-steps">
             <li><strong>Find the address.</strong> Open the Airbnb conversation for your reservation and look for our arrival message.</li>
             <li><strong>Tell us when you’ll arrive.</strong> Send your estimated arrival time in the Airbnb chat. Check-in starts at 16:00.</li>
@@ -87,11 +87,11 @@ export default async function GuestInfoPage() {
         </div>
       </section>
 
-      <section id="welcome" className="guide-intro guide-intro-vivid"><h2>Make yourself at home</h2>{toParagraphs(guide.welcome.replace("Please read this guide at the beginning of your stay — it covers the practical details, house rules and a few local favourites.", "Here are the essentials for a comfortable stay."))}</section>
-      <aside className="guide-shoes-note" aria-label="Shoes-off home"><div><strong>A shoes-off home</strong><p>Please take off your outdoor shoes when you enter the apartment. It helps keep our wooden floors clean and makes the space comfortable for everyone. Thank you!</p></div></aside>
+      <section id="welcome" className="guide-intro guide-intro-vivid"><h2><span className="guide-heading-icon" aria-hidden="true">🏡</span>Make yourself at home</h2>{toParagraphs(guide.welcome.replace("Please read this guide at the beginning of your stay — it covers the practical details, house rules and a few local favourites.", "Here are the essentials for a comfortable stay."))}</section>
+      <aside className="guide-shoes-note" aria-label="Shoes-off home"><div><strong><span className="guide-sub-icon" aria-hidden="true">👟</span>A shoes-off home</strong><p>Please take off your outdoor shoes when you enter the apartment. It helps keep our wooden floors clean and makes the space comfortable for everyone. Thank you!</p></div></aside>
 
       <section id="arrival" className="guide-feature guide-feature-arrival">
-        <div><h2>Getting to the apartment</h2>{toParagraphs(guide.arrival)}
+        <div><h2><span className="guide-heading-icon" aria-hidden="true">🚇</span>Getting to the apartment</h2>{toParagraphs(guide.arrival)}
           <p className="guide-note"><strong>Tickets:</strong> Make sure your public-transport ticket is valid before boarding.</p>
           <div className="guide-links guide-links-transport">
             <a href="https://idos.cz/en/" target="_blank" rel="noreferrer">Plan a route with IDOS ↗</a>
@@ -103,35 +103,36 @@ export default async function GuestInfoPage() {
         </div>
       </section>
 
-      <section id="home" className="guide-section guide-section-home"><div><h2>Useful things at home</h2>
+      <section id="home" className="guide-section guide-section-home"><div><h2><span className="guide-heading-icon" aria-hidden="true">🛋️</span>Useful things at home</h2>
         <div className="guide-grid guide-grid-vivid">
 
-          <article><h3>Care for the flat</h3>{toParagraphs(guide.apartmentCare.replace("Please take off your shoes inside to protect the wooden floor.", "").replace("Smoking is not allowed in the apartment or the gallery.", "").trim())}<p className="guide-rule"><strong>Smoking:</strong> please smoke outside only, never anywhere inside the building. There have been smoking-related fire incidents in the past, so this is especially important.</p></article>
-          <article><h3>Heating, water & power</h3>{toParagraphs(guide.utilities)}<p className="guide-note">If Wi-Fi, water, heating or electricity stops working, please contact us in the Airbnb chat rather than trying to fix it yourself.</p></article>
-          <article><h3>Waste & recycling</h3>{toParagraphs(guide.recycling.replace("Waste and recycling bins are on the ground floor, through the wooden door and to the right.", "The bins are on the ground floor, beyond the green door marked in the photo below."))}</article>
-          <article className="guide-wide guide-bins"><div><h3>Finding the bins</h3><p>Use the green door marked in the photo. The bins are just beyond it on the ground floor.</p></div><Image src="/images/guide/waste-bins.jpeg" alt="Green door leading to the waste and recycling bins" width={1576} height={2100}/></article>
+          <article><h3><span className="guide-sub-icon" aria-hidden="true">🏠</span>Care for the flat</h3>{toParagraphs(guide.apartmentCare.replace("Please take off your shoes inside to protect the wooden floor.", "").replace("Smoking is not allowed in the apartment or the gallery.", "").trim())}<p className="guide-rule"><strong>Smoking:</strong> please smoke outside only, never anywhere inside the building. There have been smoking-related fire incidents in the past, so this is especially important.</p></article>
+          <article><h3><span className="guide-sub-icon" aria-hidden="true">♨️</span>Heating, water & power</h3>{toParagraphs(guide.utilities)}<p className="guide-note">If Wi-Fi, water, heating or electricity stops working, please contact us in the Airbnb chat rather than trying to fix it yourself.</p></article>
+          <article><h3><span className="guide-sub-icon" aria-hidden="true">♻️</span>Waste & recycling</h3>{toParagraphs(guide.recycling.replace("Waste and recycling bins are on the ground floor, through the wooden door and to the right.", "The bins are on the ground floor, beyond the green door marked in the photo below."))}</article>
+          <article className="guide-wide guide-bins"><div><h3><span className="guide-sub-icon" aria-hidden="true">🗑️</span>Finding the bins</h3><p>Use the green door marked in the photo. The bins are just beyond it on the ground floor.</p></div><Image src="/images/guide/waste-bins.jpeg" alt="Green door leading to the waste and recycling bins" width={1576} height={2100}/></article>
           <article id="equipment" className="guide-wide">
 
-            <h3>Coffee, laundry &amp; appliances</h3>
+            <h3><span className="guide-sub-icon" aria-hidden="true">🧺</span>Coffee, laundry &amp; appliances</h3>
             {toParagraphs(guide.appliances
               .replace(/The oven has an Aqua Clean function\.\s*/gi, "")
               .replace(/A drying rack is in the bedroom and another one is in the hallway\.\s*/gi, ""))}
             <ul className="guide-equipment" aria-label="Available in the apartment">
               {equipment.map(item => (
                 <li key={item.name}>
+                  <span className="equipment-pictogram" aria-hidden="true">{item.icon}</span>
                   <div><strong>{item.name}</strong>{item.location && <small>{item.location}</small>}</div>
                 </li>
               ))}
             </ul>
           </article>
-          <article className="guide-wide guide-oven-manual"><h3>Oven</h3><p>For cooking modes and operating instructions, please see the Gorenje BO635E11 manual. If you need help, contact us in the Airbnb chat.</p><div className="guide-links"><a href="https://www.manualypdf.cz/gorenje/bo635e11/manu%C3%A1l" target="_blank" rel="noreferrer">Open oven manual ↗</a></div></article>
+          <article className="guide-wide guide-oven-manual"><h3><span className="guide-sub-icon" aria-hidden="true">♨️</span>Oven</h3><p>For cooking modes and operating instructions, please see the Gorenje BO635E11 manual. If you need help, contact us in the Airbnb chat.</p><div className="guide-links"><a href="https://www.manualypdf.cz/gorenje/bo635e11/manu%C3%A1l" target="_blank" rel="noreferrer">Open oven manual ↗</a></div></article>
         </div>
         <details className="technical-gallery"><summary>Utility locations · water, gas & electricity</summary><div><h3 id="technical-gallery-title">Water, gas & electricity</h3><p>Please contact us first whenever possible. These photos are here to identify the right place quickly in an emergency.</p></div><div className="technical-photo-grid"><figure className="technical-water-access"><Image src="/images/guide/water-access.jpg" alt="Access point to the water shut-off under the kitchen cabinet" width={3024} height={4032}/><figcaption><strong>Water shut-off</strong><span>Behind the framed access area under the kitchen cabinet.</span></figcaption></figure><figure><Image src="/images/guide/water-meter.jpg" alt="Water meter detail" width={4032} height={3024}/><figcaption><strong>Water meter</strong><span>The meter confirms you are at the water shut-off.</span></figcaption></figure><figure><Image src="/images/guide/gas-shutoff.jpg" alt="Yellow gas shut-off valve" width={3024} height={4032}/><figcaption><strong>GAS</strong></figcaption></figure><figure className="technical-electrical"><Image src="/images/guide/electrical-cabinets.jpg" alt="Electrical cabinets in the corridor" width={3024} height={4032}/><Image src="/images/guide/main-breaker.jpg" alt="Main electrical breaker inside the cabinet" width={3024} height={4032}/><figcaption><strong>ELECTRICITY</strong></figcaption></figure></div></details>
       <a className="guide-back" href="#contents">↑ Back to contents</a></div></section>
 
-      <section id="prague" className="guide-feature guide-feature-prague"><div><h2>A few Prague favourites</h2>{toParagraphs(guide.pragueTips)}
+      <section id="prague" className="guide-feature guide-feature-prague"><div><h2><span className="guide-heading-icon" aria-hidden="true">📍</span>A few Prague favourites</h2>{toParagraphs(guide.pragueTips)}
         <div className="prague-photo-pair prague-photo-single"><figure><Image src="/images/guide/prague-day.jpg" alt="View across Prague from a hilltop" width={1920} height={1440}/><figcaption>A bright Prague afternoon</figcaption></figure></div>
-        <div className="place-group"><h3>Czech food & beer</h3><div className="place-list">
+        <div className="place-group"><h3><span className="guide-sub-icon" aria-hidden="true">🍽️</span>Czech food & beer</h3><div className="place-list">
           <PlaceCard href="https://maps.app.goo.gl/VFqsydwB8UWBYAjE6" name="Havelská Koruna" detail="A self-service restaurant serving Czech classics, soups and dumplings. A straightforward choice for a traditional lunch." mark="HK" />
           <PlaceCard href="https://maps.app.goo.gl/3Puq6eo9sGxnXUjJ6" name="Pivovar Národní" detail="A brewery restaurant serving its own Czech Lion beer and Czech dishes, with a courtyard beer garden." mark="P" />
           <PlaceCard href="https://maps.app.goo.gl/pvWZkhmHzmu3LNYR9" name="Pilsnerka Národní" detail="A Czech pub on Národní for draught Pilsner Urquell and a casual meal." mark="PN" />
@@ -139,14 +140,14 @@ export default async function GuestInfoPage() {
           <PlaceCard href="https://www.google.com/maps/search/?api=1&amp;query=Lok%C3%A1l%20Dlouh%C3%A1%C3%A1%C3%A1%20Dlouh%C3%A1%2033%20Prague" name="Lokál Dlouhááá" detail="A lively Czech pub for classic home-style food and tank beer. Book ahead for an evening visit." mark="LD" />
           <PlaceCard href="https://www.google.com/maps/search/?api=1&amp;query=Kant%C3%BDna%20Politick%C3%BDch%20v%C4%9Bz%C5%88%C5%AF%205%20Prague" name="Kantýna" detail="A butcher-shop restaurant focused on meat, with a counter-service dining experience. A good pick for meat lovers." mark="K" />
         </div></div>
-        <div className="place-group"><h3>Coffee & something sweet</h3><div className="place-list">
+        <div className="place-group"><h3><span className="guide-sub-icon" aria-hidden="true">☕</span>Coffee & something sweet</h3><div className="place-list">
           <PlaceCard href="https://goo.gl/maps/hm2fr5MRwjGmrfj26" name="Café Louvre" detail="A historic café for breakfast, coffee, cakes and a relaxed sit-down meal." logo="/images/places/cafe-louvre.jpeg" />
           <PlaceCard href="https://goo.gl/maps/NYR3HbTxazzF22Xu5" name="Café Slavia" detail="A historic riverside café with breakfast, Czech and international dishes, desserts and views towards the National Theatre." mark="S" />
           <PlaceCard href="https://goo.gl/maps/LZeB18KphsvNaSKS9" name="Krusta" detail="An artisan bakery and bistro for bread, sweet and savoury pastries, and a quick bite." mark="K" />
           <PlaceCard href="https://goo.gl/maps/LNshEWKgYsoY6Jcj9" name="Au Gourmand" detail="A French-style café and pâtisserie for coffee, cakes and pastries in Dlouhá Street." mark="AG" />
           <PlaceCard href="https://www.google.com/maps/search/?api=1&amp;query=Cukr%C3%A1%C5%99%20Sk%C3%A1la%20Dlouh%C3%A1%2039%20Prague" name="Cukrář Skála" detail="Czech-style cakes and pastries with a modern twist. Visit the Dlouhá branch for its signature kremrole cream rolls." mark="CS" />
         </div></div>
-        <div className="place-group"><h3>Groceries nearby</h3><div className="place-list">
+        <div className="place-group"><h3><span className="guide-sub-icon" aria-hidden="true">🛒</span>Groceries nearby</h3><div className="place-list">
           <PlaceCard href="https://goo.gl/maps/RwqKW5QApKjnHzbf8" name="Lidl" detail="Everyday groceries, bread, fruit, vegetables and basic household supplies." logo="/images/places/lidl.webp" />
           <PlaceCard href="https://maps.app.goo.gl/1YAYpHqzaQFsdt358" name="Tesco" detail="A supermarket for a full grocery shop, drinks, snacks and household essentials." logo="/images/places/tesco.png" />
           <PlaceCard href="https://goo.gl/maps/xb7cZLZuZjEQr9oJ6" name="Albert" detail="A supermarket for everyday food, fresh produce, bakery items and drinks." logo="/images/places/albert.png" />
@@ -159,19 +160,19 @@ export default async function GuestInfoPage() {
       <section id="checkout" className="guide-feature guide-feature-checkout">
 
         <div>
-          <h2>Before you leave</h2>
+          <h2><span className="guide-heading-icon" aria-hidden="true">✓</span>Before you leave</h2>
           <p><strong>Check-out is by 11:00.</strong></p>
           <ul className="guide-checklist" aria-label="Departure checklist">
-            <li><div><strong>Turn off the lights</strong></div></li>
-            <li><div><strong>Unplug chargers and portable appliances</strong><small>Leave the fridge and other fixed appliances plugged in.</small></div></li>
-            <li><div><strong>Close the windows</strong></div></li>
-            <li><div><strong>Lock the apartment door behind you</strong></div></li>
-            <li className="guide-checklist-keys"><div><strong>Then drop the keys in the mailbox</strong><small>Use the mailbox we showed you when we handed over the keys.</small></div></li>
+            <li><span className="departure-pictogram" aria-hidden="true">💡</span><div><strong>Turn off the lights</strong></div></li>
+            <li><span className="departure-pictogram" aria-hidden="true">🔌</span><div><strong>Unplug chargers and portable appliances</strong><small>Leave the fridge and other fixed appliances plugged in.</small></div></li>
+            <li><span className="departure-pictogram" aria-hidden="true">🪟</span><div><strong>Close the windows</strong></div></li>
+            <li><span className="departure-pictogram" aria-hidden="true">🔒</span><div><strong>Lock the apartment door behind you</strong></div></li>
+            <li className="guide-checklist-keys"><span className="departure-pictogram" aria-hidden="true">🔑</span><div><strong>Then drop the keys in the mailbox</strong><small>Use the mailbox we showed you when we handed over the keys.</small></div></li>
           </ul>
           <a className="guide-back" href="#contents">↑ Back to contents</a>
         </div>
       </section>
-      <section id="help" className="guide-help"><div className="guide-help-copy"><h2>We&apos;re here to help.</h2>{toParagraphs(guide.help.replace(/\s*In an emergency[\s\S]*$/i, ""))}</div><div className="emergency-list" aria-label="Emergency telephone numbers"><a href="tel:112"><strong>112</strong><small>European emergency number</small></a><a href="tel:158"><strong>158</strong><small>Police</small></a><a href="tel:155"><strong>155</strong><small>Ambulance</small></a><a href="tel:150"><strong>150</strong><small>Fire brigade</small></a><a className="guide-back" href="#contents">↑ Back to contents</a></div></section>
+      <section id="help" className="guide-help"><div className="guide-help-copy"><h2><span className="guide-heading-icon" aria-hidden="true">💬</span>We&apos;re here to help.</h2>{toParagraphs(guide.help.replace(/\s*In an emergency[\s\S]*$/i, ""))}</div><div className="emergency-list" aria-label="Emergency telephone numbers"><a href="tel:112"><strong>112</strong><small>European emergency number</small></a><a href="tel:158"><strong>158</strong><small>Police</small></a><a href="tel:155"><strong>155</strong><small>Ambulance</small></a><a href="tel:150"><strong>150</strong><small>Fire brigade</small></a><a className="guide-back" href="#contents">↑ Back to contents</a></div></section>
       <footer className="guest-guide-footer"><span>Havelská Apartment · Guest guide</span><small aria-label={`Page version ${buildVersion}`}>Version {buildVersion}</small></footer>
     </div>
   </main>;
