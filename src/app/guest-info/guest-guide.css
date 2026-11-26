@@ -12,6 +12,9 @@
 .guest-guide-modern *, .guest-guide-modern *::before, .guest-guide-modern *::after { box-sizing: border-box; }
 .guest-guide-modern .guest-guide-hero { min-height: 360px; padding: 44px max(24px, calc((100vw - 880px) / 2)); background: #182b43; border-radius: 0 0 24px 24px; }
 .guest-guide-modern .guest-guide-hero::after { background: linear-gradient(0deg, rgba(14,30,48,.86), rgba(14,30,48,.08)); }
+.guest-guide-modern .guest-guide-hero-photo { position: absolute; inset: 0; z-index: 0; }
+.guest-guide-modern .guest-guide-hero-photo img { object-fit: cover; object-position: center; }
+.guest-guide-modern .guest-guide-hero-copy { position: relative; z-index: 2; }
 .guest-guide-modern .guest-guide-brand { margin-bottom: 12px; color: #fff; font-size: 11px; letter-spacing: .12em; }
 .guest-guide-modern h1 { font: 500 clamp(36px, 5vw, 52px)/1.08 Georgia, "Times New Roman", serif; letter-spacing: -.035em; }
 .guest-guide-modern .guest-guide-hero p { max-width: 530px; color: #f0f3f7; font-size: 15px; line-height: 1.55; }
@@ -78,6 +81,34 @@
 .guest-guide-modern .emergency-list .guide-back { display: flex; border: 0; background: transparent; padding-left: 0; }
 .guest-guide-modern .guide-back { font-size: 14px; font-weight: 500; }
 .guest-guide-modern .guest-guide-footer { margin-top: 0; }
+@media (min-width: 720px) {
+  .guest-guide-modern .guest-guide-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: stretch;
+    width: min(calc(100% - 48px), 1200px);
+    min-height: 0;
+    margin: 24px auto 0;
+    padding: 0;
+    border-radius: 20px;
+    background: #21374f;
+  }
+  .guest-guide-modern .guest-guide-hero::after { display: none; }
+  .guest-guide-modern .guest-guide-hero-photo {
+    position: relative;
+    inset: auto;
+    grid-column: 2;
+    grid-row: 1;
+    aspect-ratio: 1600 / 1068;
+  }
+  .guest-guide-modern .guest-guide-hero-copy {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    padding: clamp(24px, 3vw, 44px);
+  }
+  .guest-guide-modern .guest-guide-hero h1 { font-size: clamp(32px, 3.4vw, 48px); }
+}
 @media (max-width: 719px) {
   .guest-guide-modern .guest-guide-hero { min-height: 280px; padding: 28px 20px; border-radius: 0 0 18px 18px; }
   .guest-guide-modern .guest-guide-content { width: calc(100% - 40px); }

@@ -33,8 +33,10 @@ export default async function GuestInfoPage() {
   const guide = await getGuestGuideContent();
   return <main className="guest-guide guest-guide-modern" lang="en">
     <header className="guest-guide-hero">
-      <Image src="/images/quiet-2br-old-town-apartment.jpg" alt="The apartment kitchen and dining area" fill priority sizes="100vw" />
-      <div><Link href="/" className="guest-guide-brand">HAVELSKÁ · PRAGUE OLD TOWN</Link><h1>{guide.title}</h1><p>{guide.subtitle}</p></div>
+      <div className="guest-guide-hero-photo">
+        <Image src="/images/quiet-2br-old-town-apartment.jpg" alt="The apartment kitchen and dining area" fill priority sizes="(min-width: 1200px) 720px, (min-width: 720px) 60vw, 100vw" />
+      </div>
+      <div className="guest-guide-hero-copy"><Link href="/" className="guest-guide-brand">HAVELSKÁ · PRAGUE OLD TOWN</Link><h1>{guide.title}</h1><p>{guide.subtitle}</p></div>
     </header>
     <div className="guest-guide-content">
       <section className="guide-at-a-glance" aria-label="Stay essentials">
