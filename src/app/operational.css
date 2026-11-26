@@ -1,4 +1,6 @@
 /* The operational controls live next to the calendar, so the daily workflow has one clear path. */
+.guest-guide-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; padding: 24px 0; margin-top: 28px; border-top: 1px solid #dce3ec; color: #52647b; font-size: 13px; }
+.guest-guide-footer small { font-size: 12px; overflow-wrap: anywhere; }
 .place-copy .place-map-link { display: block; margin-top: 10px; color: #264b76; font-size: 13px; font-weight: 800; }
 .place-list .place-copy > span { font-size: 15px; line-height: 1.55; }
 .guest-guide-content [id] { scroll-margin-top: 24px; }

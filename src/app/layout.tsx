@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { AppShell } from "@/components/app-shell";
+import { buildVersion } from "@/lib/build-version";
 import "./globals.css";
 import "./operational.css";
 
@@ -15,7 +16,6 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#152c26" };
 
-const buildVersion = `v2026.11.26.2 · ${(process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 7)}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const productionLocked = Boolean(process.env.VERCEL) && (process.env.ENABLE_PRODUCTION_APP !== "true" || !process.env.DATABASE_URL);
