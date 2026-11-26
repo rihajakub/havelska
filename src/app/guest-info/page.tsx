@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getGuestGuideContent } from "@/data/repository";
+import { defaultGuestGuideContent } from "@/data/guest-guide-template";
 import { buildVersion } from "@/lib/build-version";
 
 const toParagraphs = (text: string) => text.split(/\n\s*\n/).filter(Boolean).map((paragraph) => <p key={paragraph}>{paragraph}</p>);
@@ -18,19 +19,54 @@ function PlaceCard({ href, name, detail, logo, logoAlt, mark }: { href: string; 
 
 export default async function GuestInfoPage() {
   const guide = await getGuestGuideContent();
-  return <main className="guest-guide guest-guide-vivid">
+  return <main className="guest-guide guest-guide-vivid" lang="en">
     <header className="guest-guide-hero">
       <Image src="/images/quiet-2br-old-town-apartment.jpg" alt="The apartment kitchen and dining area" fill priority sizes="100vw" />
       <div><Link href="/" className="guest-guide-brand">HAVELSKÁ · PRAGUE OLD TOWN</Link><h1>{guide.title}</h1><p>{guide.subtitle}</p></div>
     </header>
     <div className="guest-guide-content">
-      <section className="guide-at-a-glance" aria-label="Stay essentials"><div><span>Check-in</span><strong>From 16:00</strong></div><div><span>Check-out</span><strong>By 11:00</strong></div><div id="wifi"><span>Wi-Fi network</span><strong>{guide.wifiName}</strong><small>Password: {guide.wifiPassword}</small></div><a href="#help"><span>Need help?</span><strong>Contact us in Airbnb</strong></a></section>
-      <nav id="contents" className="guide-contents" aria-label="Guide contents"><strong>Quick links</strong><div><a href="#arrival">Arrival & keys</a><a href="#wifi">Wi-Fi</a><a href="#equipment">Apartment essentials</a><a href="#prague">Food & coffee</a><a href="#checkout">Check-out</a><a href="#help">Need help?</a></div></nav>
+      <section className="guide-at-a-glance" aria-label="Stay essentials">
+        <a href="#keys"><span>Check-in &amp; keys</span><strong>From 16:00</strong></a>
+        <a href="#checkout"><span>Check-out</span><strong>By 11:00</strong></a>
+        <div id="wifi"><span>Wi-Fi network</span><strong>{guide.wifiName}</strong><small>Password: {guide.wifiPassword}</small></div>
+        <a href="#help"><span>Need help?</span><strong>Contact us in Airbnb</strong></a>
+      </section>
+      <nav id="contents" className="guide-contents" aria-label="Guide contents">
+        <strong>Quick links</strong>
+        <div>
+          <a href="#keys">Check-in &amp; keys</a>
+          <a href="#arrival">Transport</a>
+          <a href="#wifi">Wi-Fi</a>
+          <a href="#equipment">Apartment essentials</a>
+          <a href="#prague">Food &amp; coffee</a>
+          <a href="#checkout">Check-out</a>
+          <a href="#help">Need help?</a>
+        </div>
+      </nav>
+
+      <section id="keys" className="guide-feature guide-feature-keys">
+        <div className="guide-feature-icon" aria-hidden="true">⌂</div>
+        <div>
+          <h2>Check-in &amp; keys</h2>
+          <ol className="guide-arrival-steps">
+            <li><strong>Find the address.</strong> Open the Airbnb conversation for your reservation and look for our arrival message.</li>
+            <li><strong>Tell us when you’ll arrive.</strong> Send your estimated arrival time in the Airbnb chat. Check-in starts at 16:00.</li>
+            <li><strong>Meet us for the keys.</strong> We’ll hand them over in person at the time we agree in the chat.</li>
+          </ol>
+          <p className="guide-note">The online check-in form registers your guest details. Please arrange the key handover separately in the Airbnb chat.</p>
+          <p className="guide-note"><strong>No lift.</strong> There is no lift in the building.</p>
+          <p className="guide-note">Need a different arrival or departure time? Message us in the Airbnb chat and we’ll do our best to help.</p>
+          <p className="guide-note"><strong>Lost your keys or locked out?</strong> Message us in the Airbnb chat.</p>
+          {guide.keys.trim() !== defaultGuestGuideContent.keys && toParagraphs(guide.keys)}
+          <a className="guide-back" href="#contents">↑ Back to contents</a>
+        </div>
+      </section>
+
       <section id="welcome" className="guide-intro guide-intro-vivid"><span className="landing-kicker">Your Prague base</span><h2>Make yourself at home</h2>{toParagraphs(guide.welcome.replace("Please read this guide at the beginning of your stay — it covers the practical details, house rules and a few local favourites.", "Here are the essentials for a comfortable stay."))}</section>
       <aside className="guide-shoes-note" aria-label="Shoes-off home"><span aria-hidden="true">👟</span><div><strong>A shoes-off home</strong><p>Please take off your outdoor shoes when you enter the apartment. It helps keep our wooden floors clean and makes the space comfortable for everyone. Thank you!</p></div></aside>
 
       <section id="arrival" className="guide-feature guide-feature-arrival">
-        <div className="guide-feature-icon">✦</div><div><span className="landing-kicker">01 · Arrival</span><h2>Getting to the apartment</h2>{toParagraphs(guide.arrival)}
+        <div className="guide-feature-icon">✦</div><div><h2>Getting to the apartment</h2>{toParagraphs(guide.arrival)}
           <p className="guide-note"><strong>Tickets:</strong> Make sure your public-transport ticket is valid before boarding.</p>
           <div className="guide-links guide-links-transport">
             <a href="https://idos.cz/en/" target="_blank" rel="noreferrer">Plan a route with IDOS ↗</a>
@@ -41,8 +77,6 @@ export default async function GuestInfoPage() {
           </div>
         </div>
       </section>
-
-      <section id="keys" className="guide-feature guide-feature-keys"><div className="guide-feature-icon">⌂</div><div><span className="landing-kicker">02 · Check-in</span><h2>Keys & arrival time</h2>{toParagraphs(guide.keys)}<p className="guide-note"><strong>Lost your keys or locked yourself out?</strong> Please contact us in the Airbnb chat so we can help.</p><div className="stay-times" aria-label="Check-in and check-out times"><div><span>Check-in</span><strong>From 16:00</strong></div><div><span>Check-out</span><strong>By 11:00</strong></div></div><p className="guide-note"><strong>Please note:</strong> there is no lift in the building.</p><p className="guide-note">Need a different arrival or departure time? Please let us know in the Airbnb chat — we will do our best to accommodate you.</p><a className="guide-back" href="#contents">↑ Back to contents</a></div></section>
 
       <section id="home" className="guide-section guide-section-home"><span className="guide-number">03</span><div><h2>Useful things at home</h2>
         <div className="guide-grid guide-grid-vivid">
@@ -84,7 +118,21 @@ export default async function GuestInfoPage() {
         <div className="guide-links"><a href="https://www.youtube.com/@HONESTGUIDE/videos" target="_blank" rel="noreferrer">More local tips from Honest Guide ↗</a></div>
       <a className="guide-back" href="#contents">↑ Back to contents</a></div></section>
 
-      <section id="checkout" className="guide-feature guide-feature-checkout"><div className="guide-feature-icon">✓</div><div><span className="landing-kicker">05 · Departure</span><h2>Before you leave</h2><p><strong>Check-out is by 11:00.</strong> A quick five-point check before you go — thank you for helping us prepare the apartment for the next guests.</p><ul className="guide-checklist" aria-label="Departure checklist"><li><span aria-hidden="true">💡</span><div><strong>Lights off</strong><small>Switch off all lights.</small></div></li><li><span aria-hidden="true">🔌</span><div><strong>Unplug appliances</strong><small>Unplug your chargers and portable appliances, such as the iron and hairdryer. Please leave the fridge and other fixed appliances plugged in.</small></div></li><li><span aria-hidden="true">🪟</span><div><strong>Windows closed</strong><small>Check every room before leaving.</small></div></li><li><span aria-hidden="true">🔒</span><div><strong>Apartment locked</strong><small>Lock the door securely behind you.</small></div></li><li className="guide-checklist-keys"><span aria-hidden="true">🔑</span><div><strong>Keys in the mailbox</strong><small>Return them as explained during the handover.</small></div></li></ul><a className="guide-back" href="#contents">↑ Back to contents</a></div></section>
+      <section id="checkout" className="guide-feature guide-feature-checkout">
+        <div className="guide-feature-icon" aria-hidden="true">✓</div>
+        <div>
+          <h2>Before you leave</h2>
+          <p><strong>Check-out is by 11:00.</strong></p>
+          <ul className="guide-checklist" aria-label="Departure checklist">
+            <li><span aria-hidden="true">💡</span><div><strong>Turn off the lights</strong></div></li>
+            <li><span aria-hidden="true">🔌</span><div><strong>Unplug chargers and portable appliances</strong><small>Leave the fridge and other fixed appliances plugged in.</small></div></li>
+            <li><span aria-hidden="true">🪟</span><div><strong>Close the windows</strong></div></li>
+            <li><span aria-hidden="true">🔒</span><div><strong>Lock the apartment door behind you</strong></div></li>
+            <li className="guide-checklist-keys"><span aria-hidden="true">🔑</span><div><strong>Then drop the keys in the mailbox</strong><small>Use the mailbox we showed you when we handed over the keys.</small></div></li>
+          </ul>
+          <a className="guide-back" href="#contents">↑ Back to contents</a>
+        </div>
+      </section>
       <section id="help" className="guide-help"><div className="guide-help-copy"><span className="landing-kicker">Need assistance?</span><h2>We&apos;re here to help.</h2>{toParagraphs(guide.help.replace(/\s*In an emergency[\s\S]*$/i, ""))}</div><div className="emergency-list" aria-label="Emergency telephone numbers"><a href="tel:112"><span aria-hidden="true">🆘</span><strong>112</strong><small>European emergency number</small></a><a href="tel:158"><span aria-hidden="true">👮</span><strong>158</strong><small>Police</small></a><a href="tel:155"><span aria-hidden="true">🚑</span><strong>155</strong><small>Ambulance</small></a><a href="tel:150"><span aria-hidden="true">🚒</span><strong>150</strong><small>Fire brigade</small></a><a className="guide-back" href="#contents">↑ Back to contents</a></div></section>
       <footer className="guest-guide-footer"><span>Havelská Apartment · Guest guide</span><small aria-label={`Page version ${buildVersion}`}>Version {buildVersion}</small></footer>
     </div>

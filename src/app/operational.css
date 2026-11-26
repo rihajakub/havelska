@@ -2,6 +2,16 @@
 .guide-at-a-glance { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; padding: 24px 0 8px; }
 .guide-at-a-glance > div, .guide-at-a-glance > a { display: grid; align-content: start; gap: 6px; padding: 16px; border: 1px solid #d6e0eb; border-radius: 14px; color: #182a45; background: #fff; min-width: 0; overflow-wrap: anywhere; }
 .guide-at-a-glance span { font-size: 13px; color: #52647b; }.guide-at-a-glance strong { font-size: 18px; }.guide-at-a-glance small { font-size: 15px; }
+.guide-arrival-steps {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0;
+  padding-inline-start: 24px;
+  font-size: 16px;
+  line-height: 1.55;
+}
+.guide-arrival-steps li { padding-inline-start: 4px; }
+.guide-arrival-steps li::marker { font-weight: 750; }
 .guest-guide-vivid .guide-intro { padding-top: 28px; padding-bottom: 24px; }.guest-guide-vivid .guide-intro::after { content: none; }
 .guest-guide-vivid .guide-feature-prague { background: #f0f4f8; }
 .guest-guide-vivid .guide-note { font-size: 15px; line-height: 1.6; }
