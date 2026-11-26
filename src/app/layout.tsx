@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#152c26" };
 
-const buildVersion = `v2026.11.23.5 · ${(process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 7)}`;
+const buildVersion = `v2026.11.26.1 · ${(process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 7)}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const productionLocked = Boolean(process.env.VERCEL) && (process.env.ENABLE_PRODUCTION_APP !== "true" || !process.env.DATABASE_URL);

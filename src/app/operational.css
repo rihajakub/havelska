@@ -1,4 +1,13 @@
 /* The operational controls live next to the calendar, so the daily workflow has one clear path. */
+.guest-guide-content [id] { scroll-margin-top: 24px; }
+.guide-contents { padding: 20px 0; border-bottom: 1px solid #dce3ec; }
+.guide-contents > strong { color: #182a45; font-size: 15px; }
+.guide-contents > div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.guide-contents a { padding: 10px 14px; border: 1px solid #cbd9e9; border-radius: 12px; color: #264b76; background: #fff; font-size: 15px; font-weight: 700; }
+.guide-contents a:hover { background: #e8f0fa; }
+.guide-equipment { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
+.guide-equipment li { display: flex; align-items: center; gap: 10px; padding: 13px; border: 1px solid #dce3ec; border-radius: 12px; color: #182a45; background: #fff; font-size: 14px; }
+.guide-equipment li > span { font-size: 24px; }
 .guide-shoes-note { display: flex; align-items: flex-start; gap: 16px; margin: 0 0 28px; padding: 22px; border: 1px solid #cbd9e9; border-radius: 18px; color: #182a45; background: #e8f0fa; }
 .guide-shoes-note > span { flex: 0 0 auto; font-size: 28px; }
 .guide-shoes-note strong { font-size: 19px; }.guide-shoes-note p { margin: 6px 0 0; color: #405773; font-size: 16px; line-height: 1.6; }
