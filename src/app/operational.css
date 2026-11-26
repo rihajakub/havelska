@@ -2,6 +2,21 @@
 .guide-at-a-glance { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; padding: 24px 0 8px; }
 .guide-at-a-glance > div, .guide-at-a-glance > a { display: grid; align-content: start; gap: 6px; padding: 16px; border: 1px solid #d6e0eb; border-radius: 14px; color: #182a45; background: #fff; min-width: 0; overflow-wrap: anywhere; }
 .guide-at-a-glance span { font-size: 13px; color: #52647b; }.guide-at-a-glance strong { font-size: 18px; }.guide-at-a-glance small { font-size: 15px; }
+.guide-copy-password {
+  min-height: 44px;
+  padding: 8px 10px;
+  margin-top: 4px;
+  border: 1px solid #cbd9e9;
+  border-radius: 10px;
+  color: #264b76;
+  background: #edf3f9;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.guide-copy-password:hover { background: #dfeaf6; }
+.guide-at-a-glance .copy-text-status { color: #52647b; font-size: 13px; }
+.copy-text-status:empty { position: absolute; }
 .guide-arrival-steps {
   display: grid;
   gap: 12px;
@@ -55,6 +70,8 @@
 .guide-equipment { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
 .guide-equipment li { display: flex; align-items: center; gap: 10px; padding: 13px; border: 1px solid #dce3ec; border-radius: 12px; color: #182a45; background: #fff; font-size: 14px; }
 .guide-equipment li > span { font-size: 24px; }
+.guide-equipment li > div { min-width: 0; }
+.guide-equipment li small { display: block; margin-top: 4px; color: #52647b; font-size: 14px; line-height: 1.4; }
 .guide-shoes-note { display: flex; align-items: flex-start; gap: 16px; margin: 0 0 28px; padding: 22px; border: 1px solid #cbd9e9; border-radius: 18px; color: #182a45; background: #e8f0fa; }
 .guide-shoes-note > span { flex: 0 0 auto; font-size: 28px; }
 .guide-shoes-note strong { font-size: 19px; }.guide-shoes-note p { margin: 6px 0 0; color: #405773; font-size: 16px; line-height: 1.6; }

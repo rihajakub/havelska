@@ -11,7 +11,7 @@ export const defaultGuestGuideContent: GuestGuideContent = {
   apartmentCare: "Please take off your shoes inside to protect the wooden floor. Smoking is not allowed in the apartment or the gallery. Please be considerate of neighbours, especially in the evening and at night.",
   utilities: "The heating and hot-water controls are in the hallway. The electrical fuse box is in the corridor. The water inlet is under the kitchen sink and the gas shut-off is under the induction hob. If there is a problem, please contact us before changing any setting.",
   recycling: "Waste and recycling bins are on the ground floor, through the wooden door and to the right. Yellow is for plastic, blue for paper, green for glass and black for mixed waste.",
-  appliances: "You can use the Nespresso machine, vacuum cleaner and oven. A drying rack is in the bedroom and another one is in the hallway. Please ask if you need help with any appliance.",
+  appliances: "You can use the Nespresso machine and oven. Please ask if you need help with any appliance.",
   pragueTips: "Below are our favourite nearby places for Czech food, coffee, bakeries, beer and groceries. Public transport, Uber and Bolt make it easy to explore the city.",
   checkout: "Before leaving, please wash used dishes or start the dishwasher, turn off lights, close windows, check cupboards and the bathroom for belongings, and return the keys as agreed. Thank you for leaving the apartment in good condition.",
   help: "For anything concerning the apartment, contact Anna or Jakub in the Airbnb conversation. In an emergency in the Czech Republic call 112; police 158, ambulance 155 and fire brigade 150.",

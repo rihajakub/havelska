@@ -3,10 +3,21 @@ import Link from "next/link";
 import { getGuestGuideContent } from "@/data/repository";
 import { defaultGuestGuideContent } from "@/data/guest-guide-template";
 import { buildVersion } from "@/lib/build-version";
+import { CopyTextButton } from "@/components/copy-text-button";
 
 const toParagraphs = (text: string) => text.split(/\n\s*\n/).filter(Boolean).map((paragraph) => <p key={paragraph}>{paragraph}</p>);
 
 export const dynamic = "force-dynamic";
+
+const equipment = [
+  { icon: "🧺", name: "Washing machine", location: "In the bathroom." },
+  { icon: "👕", name: "Drying rack", location: "Next to the washing machine in the bathroom." },
+  { icon: "👔", name: "Ironing board", location: "Next to the washing machine in the bathroom." },
+  { icon: "♨️", name: "Iron", location: "On top of the washing machine." },
+  { icon: "💨", name: "Hairdryer", location: "Under the bathroom sink." },
+  { icon: "🧹", name: "Vacuum cleaner", location: "In the hallway cupboard." },
+  { icon: "🌀", name: "Fan" },
+];
 
 function PlaceCard({ href, name, detail, logo, logoAlt, mark }: { href: string; name: string; detail: string; logo?: string; logoAlt?: string; mark?: string }) {
   return <a href={href} target="_blank" rel="noreferrer">
@@ -28,7 +39,18 @@ export default async function GuestInfoPage() {
       <section className="guide-at-a-glance" aria-label="Stay essentials">
         <a href="#keys"><span>Check-in &amp; keys</span><strong>From 16:00</strong></a>
         <a href="#checkout"><span>Check-out</span><strong>By 11:00</strong></a>
-        <div id="wifi"><span>Wi-Fi network</span><strong>{guide.wifiName}</strong><small>Password: {guide.wifiPassword}</small></div>
+        <div id="wifi">
+          <span>Wi-Fi network</span>
+          <strong>{guide.wifiName}</strong>
+          <small>Password: {guide.wifiPassword}</small>
+          <CopyTextButton
+            value={guide.wifiPassword}
+            label="Copy password"
+            successMessage="Password copied."
+            errorMessage="Couldn’t copy. Select the password above to copy it manually."
+            className="guide-copy-password"
+          />
+        </div>
         <a href="#help"><span>Need help?</span><strong>Contact us in Airbnb</strong></a>
       </section>
       <nav id="contents" className="guide-contents" aria-label="Guide contents">
@@ -85,7 +107,21 @@ export default async function GuestInfoPage() {
           <article><span aria-hidden="true">♨</span><h3>Heating, water & power</h3>{toParagraphs(guide.utilities)}<p className="guide-note">If Wi-Fi, water, heating or electricity stops working, please contact us in the Airbnb chat rather than trying to fix it yourself.</p></article>
           <article><span aria-hidden="true">♻</span><h3>Waste & recycling</h3>{toParagraphs(guide.recycling.replace("Waste and recycling bins are on the ground floor, through the wooden door and to the right.", "The bins are on the ground floor, beyond the green door marked in the photo below."))}</article>
           <article className="guide-wide guide-bins"><div><span aria-hidden="true">🗑</span><h3>Finding the bins</h3><p>Use the green door marked in the photo. The bins are just beyond it on the ground floor.</p></div><Image src="/images/guide/waste-bins.jpeg" alt="Green door leading to the waste and recycling bins" width={1576} height={2100}/></article>
-          <article id="equipment" className="guide-wide"><span aria-hidden="true">☕</span><h3>Coffee, laundry & appliances</h3>{toParagraphs(guide.appliances.replace(/The oven has an Aqua Clean function\.\s*/gi, ""))}<ul className="guide-equipment" aria-label="Available in the apartment">{[{ icon: "🧺", name: "Washing machine" }, { icon: "👕", name: "Drying rack" }, { icon: "♨️", name: "Iron" }, { icon: "💨", name: "Hairdryer" }, { icon: "🌀", name: "Fan" }].map(item => <li key={item.name}><span aria-hidden="true">{item.icon}</span><strong>{item.name}</strong></li>)}</ul></article>
+          <article id="equipment" className="guide-wide">
+            <span aria-hidden="true">☕</span>
+            <h3>Coffee, laundry &amp; appliances</h3>
+            {toParagraphs(guide.appliances
+              .replace(/The oven has an Aqua Clean function\.\s*/gi, "")
+              .replace(/A drying rack is in the bedroom and another one is in the hallway\.\s*/gi, ""))}
+            <ul className="guide-equipment" aria-label="Available in the apartment">
+              {equipment.map(item => (
+                <li key={item.name}>
+                  <span aria-hidden="true">{item.icon}</span>
+                  <div><strong>{item.name}</strong>{item.location && <small>{item.location}</small>}</div>
+                </li>
+              ))}
+            </ul>
+          </article>
           <article className="guide-wide guide-oven-manual"><span aria-hidden="true">🔥</span><h3>Oven</h3><p>For cooking modes and operating instructions, please see the Gorenje BO635E11 manual. If you need help, contact us in the Airbnb chat.</p><div className="guide-links"><a href="https://www.manualypdf.cz/gorenje/bo635e11/manu%C3%A1l" target="_blank" rel="noreferrer">Open oven manual ↗</a></div></article>
         </div>
         <details className="technical-gallery"><summary>Utility locations · water, gas & electricity</summary><div><span className="landing-kicker">Emergency reference</span><h3 id="technical-gallery-title">Water, gas & electricity</h3><p>Please contact us first whenever possible. These photos are here to identify the right place quickly in an emergency.</p></div><div className="technical-photo-grid"><figure className="technical-water-access"><Image src="/images/guide/water-access.jpg" alt="Access point to the water shut-off under the kitchen cabinet" width={3024} height={4032}/><figcaption><strong>Water shut-off</strong><span>Behind the framed access area under the kitchen cabinet.</span></figcaption></figure><figure><Image src="/images/guide/water-meter.jpg" alt="Water meter detail" width={4032} height={3024}/><figcaption><strong>Water meter</strong><span>The meter confirms you are at the water shut-off.</span></figcaption></figure><figure><Image src="/images/guide/gas-shutoff.jpg" alt="Yellow gas shut-off valve" width={3024} height={4032}/><figcaption><strong>GAS</strong></figcaption></figure><figure className="technical-electrical"><Image src="/images/guide/electrical-cabinets.jpg" alt="Electrical cabinets in the corridor" width={3024} height={4032}/><Image src="/images/guide/main-breaker.jpg" alt="Main electrical breaker inside the cabinet" width={3024} height={4032}/><figcaption><strong>ELECTRICITY</strong></figcaption></figure></div></details>
