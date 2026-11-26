@@ -11,7 +11,7 @@ function PlaceCard({ href, name, detail, logo, logoAlt, mark }: { href: string; 
     <span className="place-logo" aria-hidden={logo ? undefined : true}>
       {logo ? <Image src={logo} alt={logoAlt ?? `${name} logo`} width={112} height={72} /> : mark}
     </span>
-    <span className="place-copy"><strong>{name}</strong><span>{detail} ↗</span></span>
+    <span className="place-copy"><strong>{name}</strong><span>{detail}</span><small className="place-map-link">Open in Google Maps ↗</small></span>
   </a>;
 }
 
@@ -63,20 +63,24 @@ export default async function GuestInfoPage() {
         <div className="prague-photo-pair prague-photo-single"><figure><Image src="/images/guide/prague-day.jpg" alt="View across Prague from a hilltop" width={1920} height={1440}/><figcaption>A bright Prague afternoon</figcaption></figure></div>
         <section className="nearby-map" aria-labelledby="nearby-map-title"><div><span className="landing-kicker">Get your bearings</span><h3 id="nearby-map-title">Recommended places nearby</h3><p>A quick orientation map. Tap any pin for its exact location and walking route.</p></div><div className="nearby-map-canvas" aria-label="Schematic map of recommended places"><span className="map-river"/><span className="map-street street-one"/><span className="map-street street-two"/><span className="map-street street-three"/><MapPin href="https://maps.app.goo.gl/VFqsydwB8UWBYAjE6" label="Havelská Koruna" short="HK" x="64%" y="27%" type="food"/><MapPin href="https://goo.gl/maps/hm2fr5MRwjGmrfj26" label="Café Louvre" short="L" x="40%" y="49%" type="food"/><MapPin href="https://goo.gl/maps/NYR3HbTxazzF22Xu5" label="Café Slavia" short="S" x="15%" y="64%" type="food"/><MapPin href="https://goo.gl/maps/LZeB18KphsvNaSKS9" label="Krusta" short="K" x="58%" y="78%" type="food"/><MapPin href="https://goo.gl/maps/LNshEWKgYsoY6Jcj9" label="Au Gourmand" short="AG" x="73%" y="14%" type="food"/><MapPin href="https://maps.app.goo.gl/3Puq6eo9sGxnXUjJ6" label="Pivovar Národní" short="P" x="25%" y="57%" type="food"/><MapPin href="https://maps.app.goo.gl/pvWZkhmHzmu3LNYR9" label="Pilsnerka Národní" short="PN" x="47%" y="57%" type="food"/><MapPin href="https://goo.gl/maps/RwqKW5QApKjnHzbf8" label="Lidl" short="Li" x="53%" y="90%" type="shop"/><MapPin href="https://maps.app.goo.gl/1YAYpHqzaQFsdt358" label="Tesco" short="T" x="37%" y="82%" type="shop"/><MapPin href="https://goo.gl/maps/xb7cZLZuZjEQr9oJ6" label="Albert" short="A" x="78%" y="50%" type="shop"/><MapPin href="https://goo.gl/maps/ffV91LZz43ji1duh6" label="BILLA" short="B" x="84%" y="76%" type="shop"/><MapPin href="https://goo.gl/maps/YYG6b1mMbKYt5jrf8" label="Delmart" short="D" x="88%" y="28%" type="shop"/></div><div className="map-legend"><span><i className="food"/>Food & coffee</span><span><i className="shop"/>Groceries</span></div></section>
         <div className="place-group"><h3>Food, coffee & Czech classics</h3><div className="place-list">
-          <PlaceCard href="https://maps.app.goo.gl/VFqsydwB8UWBYAjE6" name="Havelská Koruna" detail="Czech classics nearby" mark="HK" />
-          <PlaceCard href="https://goo.gl/maps/hm2fr5MRwjGmrfj26" name="Café Louvre" detail="Breakfast & coffee" logo="/images/places/cafe-louvre.jpeg" />
-          <PlaceCard href="https://goo.gl/maps/NYR3HbTxazzF22Xu5" name="Café Slavia" detail="Historic riverside café" mark="S" />
-          <PlaceCard href="https://goo.gl/maps/LZeB18KphsvNaSKS9" name="Krusta" detail="Artisan bakery" mark="K" />
-          <PlaceCard href="https://goo.gl/maps/LNshEWKgYsoY6Jcj9" name="Au Gourmand" detail="Bakery & pâtisserie" mark="AG" />
-          <PlaceCard href="https://maps.app.goo.gl/3Puq6eo9sGxnXUjJ6" name="Pivovar Národní" detail="Czech beer & food" mark="P" />
-          <PlaceCard href="https://maps.app.goo.gl/pvWZkhmHzmu3LNYR9" name="Pilsnerka Národní" detail="Czech pub" mark="PN" />
+          <PlaceCard href="https://maps.app.goo.gl/VFqsydwB8UWBYAjE6" name="Havelská Koruna" detail="A self-service restaurant serving Czech classics, soups and dumplings. A straightforward choice for a traditional lunch." mark="HK" />
+          <PlaceCard href="https://goo.gl/maps/hm2fr5MRwjGmrfj26" name="Café Louvre" detail="A historic café for breakfast, coffee, cakes and a relaxed sit-down meal." logo="/images/places/cafe-louvre.jpeg" />
+          <PlaceCard href="https://goo.gl/maps/NYR3HbTxazzF22Xu5" name="Café Slavia" detail="A historic riverside café with breakfast, Czech and international dishes, desserts and views towards the National Theatre." mark="S" />
+          <PlaceCard href="https://goo.gl/maps/LZeB18KphsvNaSKS9" name="Krusta" detail="An artisan bakery and bistro for bread, sweet and savoury pastries, and a quick bite." mark="K" />
+          <PlaceCard href="https://goo.gl/maps/LNshEWKgYsoY6Jcj9" name="Au Gourmand" detail="A French-style café and pâtisserie for coffee, cakes and pastries in Dlouhá Street." mark="AG" />
+          <PlaceCard href="https://maps.app.goo.gl/3Puq6eo9sGxnXUjJ6" name="Pivovar Národní" detail="A brewery restaurant serving its own Czech Lion beer and Czech dishes, with a courtyard beer garden." mark="P" />
+          <PlaceCard href="https://maps.app.goo.gl/pvWZkhmHzmu3LNYR9" name="Pilsnerka Národní" detail="A Czech pub on Národní for draught Pilsner Urquell and a casual meal." mark="PN" />
+          <PlaceCard href="https://www.google.com/maps/search/?api=1&amp;query=U%20Pinkas%C5%AF%20Jungmannovo%20n%C3%A1m%C4%9Bst%C3%AD%2016%20Prague" name="U Pinkasů" detail="Traditional Czech dishes and Pilsner Urquell in a historic pub. A good choice for a first Czech dinner." mark="UP" />
+          <PlaceCard href="https://www.google.com/maps/search/?api=1&amp;query=Lok%C3%A1l%20Dlouh%C3%A1%C3%A1%C3%A1%20Dlouh%C3%A1%2033%20Prague" name="Lokál Dlouhááá" detail="A lively Czech pub for classic home-style food and tank beer. Book ahead for an evening visit." mark="LD" />
+          <PlaceCard href="https://www.google.com/maps/search/?api=1&amp;query=Kant%C3%BDna%20Politick%C3%BDch%20v%C4%9Bz%C5%88%C5%AF%205%20Prague" name="Kantýna" detail="A butcher-shop restaurant focused on meat, with a counter-service dining experience. A good pick for meat lovers." mark="K" />
+          <PlaceCard href="https://www.google.com/maps/search/?api=1&amp;query=Cukr%C3%A1%C5%99%20Sk%C3%A1la%20Dlouh%C3%A1%2039%20Prague" name="Cukrář Skála" detail="Czech-style cakes and pastries with a modern twist. Visit the Dlouhá branch for its signature kremrole cream rolls." mark="CS" />
         </div></div>
         <div className="place-group"><h3>Groceries nearby</h3><div className="place-list">
-          <PlaceCard href="https://goo.gl/maps/RwqKW5QApKjnHzbf8" name="Lidl" detail="Everyday groceries" logo="/images/places/lidl.webp" />
-          <PlaceCard href="https://maps.app.goo.gl/1YAYpHqzaQFsdt358" name="Tesco" detail="Late grocery option" logo="/images/places/tesco.png" />
-          <PlaceCard href="https://goo.gl/maps/xb7cZLZuZjEQr9oJ6" name="Albert" detail="Supermarket" logo="/images/places/albert.png" />
-          <PlaceCard href="https://goo.gl/maps/ffV91LZz43ji1duh6" name="BILLA" detail="Supermarket" logo="/images/places/billa.webp" />
-          <PlaceCard href="https://goo.gl/maps/YYG6b1mMbKYt5jrf8" name="Delmart" detail="Fine groceries" logo="/images/places/delmart.jpg" />
+          <PlaceCard href="https://goo.gl/maps/RwqKW5QApKjnHzbf8" name="Lidl" detail="Everyday groceries, bread, fruit, vegetables and basic household supplies." logo="/images/places/lidl.webp" />
+          <PlaceCard href="https://maps.app.goo.gl/1YAYpHqzaQFsdt358" name="Tesco" detail="A supermarket for a full grocery shop, drinks, snacks and household essentials." logo="/images/places/tesco.png" />
+          <PlaceCard href="https://goo.gl/maps/xb7cZLZuZjEQr9oJ6" name="Albert" detail="A supermarket for everyday food, fresh produce, bakery items and drinks." logo="/images/places/albert.png" />
+          <PlaceCard href="https://goo.gl/maps/ffV91LZz43ji1duh6" name="BILLA" detail="A supermarket for groceries, fresh produce, bread and snacks for your stay." logo="/images/places/billa.webp" />
+          <PlaceCard href="https://goo.gl/maps/YYG6b1mMbKYt5jrf8" name="Delmart" detail="A food shop for groceries, deli products and something convenient to take away." logo="/images/places/delmart.jpg" />
         </div></div>
         <div className="guide-links"><a href="https://www.youtube.com/@HONESTGUIDE/videos" target="_blank" rel="noreferrer">More local tips from Honest Guide ↗</a></div>
       </div></section>
